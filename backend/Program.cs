@@ -50,9 +50,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(CorsPolicy);
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseCors(CorsPolicy);
 
 var api = app.MapGroup("/api");
 
