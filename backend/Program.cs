@@ -51,6 +51,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(CorsPolicy);
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 var api = app.MapGroup("/api");
 
@@ -204,5 +206,7 @@ api.MapDelete("/trackers/{id:guid}/entries/{entryId:guid}/comments/{commentId:gu
 
     return Results.NoContent();
 });
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

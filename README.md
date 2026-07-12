@@ -7,7 +7,7 @@ share a tracker via a link or QR code that can be placed on the racket.
 
 - **Backend** – ASP.NET Core (C#) Web API using Entity Framework Core
 - **Database** – PostgreSQL, running as its own container
-- **Frontend** – React + TypeScript (Vite), served by nginx
+- **Frontend** – React + TypeScript (Vite), served by ASP.NET Core
 - **Containerisation** – Docker / Docker Compose
 
 ## Features
@@ -38,10 +38,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Then open:
-
-- Frontend: <http://localhost:3000>
-- Backend API (Swagger in development): <http://localhost:8080/swagger>
+Then open <http://localhost:8080>. The API is available under `/api`.
 
 The database schema is created automatically via EF Core migrations on backend
 startup.
@@ -72,5 +69,5 @@ local development, set `VITE_API_BASE_URL` (e.g. `http://localhost:8080/api`).
 ```
 backend/    ASP.NET Core Web API + EF Core (models, DbContext, migrations)
 frontend/   React + TypeScript SPA (pages, components)
-docker-compose.yml   db + backend + frontend services
+docker-compose.yml   database + combined application services
 ```

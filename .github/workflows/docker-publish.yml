@@ -39,15 +39,6 @@ jobs:
       contents: read
       packages: write
       pull-requests: write
-    strategy:
-      matrix:
-        include:
-          - name: backend
-            context: ./backend
-            file: ./backend/Dockerfile
-          - name: frontend
-            context: ./frontend
-            file: ./frontend/Dockerfile
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -63,7 +54,7 @@ jobs:
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
       - name: Set lowercase image name
-        run: echo "IMAGE_NAME=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/${{ matrix.name }}" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Determine Docker tags
         id: docker-tags
@@ -92,8 +83,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.file }}
+          context: .
+          file: backend/Dockerfile
           push: true
           build-args: |
             VERSION=${{ needs.version.outputs.version }}
@@ -103,7 +94,6 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE: ${{ matrix.name }}
           VERSION: ${{ needs.version.outputs.version }}
           TAGS: ${{ steps.docker-tags.outputs.tags }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -111,8 +101,8 @@ jobs:
           # Build the tag list (extract tag name after the last colon)
           TAG_LIST=$(echo "$TAGS" | rev | cut -d: -f1 | rev | sed 's/^/- `/' | sed 's/$/`/')
 
-          COMMENT_BODY="<!-- docker-publish-comment-${IMAGE} -->
-          ### 🚀 Docker Image Published (\`${IMAGE}\`)
+          COMMENT_BODY="<!-- docker-publish-comment -->
+          ### 🚀 Docker Image Published
 
           **Version:** \`${VERSION}\`
 
@@ -121,7 +111,7 @@ jobs:
 
           # Update existing comment if present, otherwise create a new one
           COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
-            --jq ".[] | select(.body | contains(\"<!-- docker-publish-comment-${IMAGE} -->\")) | .id" | tail -1 || true)
+            --jq '.[] | select(.body | contains("<!-- docker-publish-comment -->")) | .id' | tail -1 || true)
 
           if [ -n "$COMMENT_ID" ]; then
             gh api "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" \
