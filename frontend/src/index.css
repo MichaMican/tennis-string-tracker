@@ -254,3 +254,13 @@ label {
   border-radius: 999px;
   border: 1px solid var(--border);
 }
+
+.version-footer {
+  position: fixed;
+  right: 0.5rem;
+  bottom: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  pointer-events: none;
+  user-select: none;
+}
