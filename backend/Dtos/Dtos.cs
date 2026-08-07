@@ -17,7 +17,12 @@ public record StringEntryDto(
 public record TrackerDto(
     Guid Id,
     DateTime CreatedAt,
+    bool HasEditPassword,
     List<StringEntryDto> StringEntries);
+
+public record CreateTrackerDto(string? EditPassword);
+
+public record VerifyEditPasswordDto(string Password);
 
 public record CreateStringEntryDto(
     decimal? HorizontalWeight,
