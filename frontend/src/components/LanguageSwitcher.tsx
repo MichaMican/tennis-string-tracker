@@ -13,7 +13,6 @@ export function LanguageSwitcher() {
       <select
         id="language-select"
         value={language}
-        aria-label={t("language.label")}
         onChange={(e) => setLanguage(e.target.value as Language)}
       >
         {languages.map((lang) => (
