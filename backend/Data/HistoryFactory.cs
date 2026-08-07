@@ -65,7 +65,7 @@ public static class HistoryFactory
             EntityId = c.Id,
             EntityLabel = Mapping.Label(parent),
             Action = HistoryAction.Create,
-            Field = "Comment",
+            Field = CommentField(c),
             OldValue = null,
             NewValue = c.Text,
             Timestamp = DateTime.UtcNow
@@ -80,11 +80,17 @@ public static class HistoryFactory
             EntityId = c.Id,
             EntityLabel = Mapping.Label(parent),
             Action = HistoryAction.Delete,
-            Field = "Comment",
+            Field = CommentField(c),
             OldValue = c.Text,
             NewValue = null,
             Timestamp = DateTime.UtcNow
         };
+
+    /// <summary>Field name used for history entries about stringer (internal) comments.</summary>
+    public const string StringerCommentField = "Stringer comment";
+
+    private static string CommentField(Comment c)
+        => c.Author == CommentAuthor.Stringer ? StringerCommentField : "Player comment";
 
     private static HistoryEntry Base(StringEntry s, HistoryAction action,
         string? field, string? oldValue, string? newValue)

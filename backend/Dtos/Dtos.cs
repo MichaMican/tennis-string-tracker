@@ -2,7 +2,7 @@ using TennisStringTracker.Api.Models;
 
 namespace TennisStringTracker.Api.Dtos;
 
-public record CommentDto(Guid Id, string Text, DateTime CreatedAt);
+public record CommentDto(Guid Id, string Text, CommentAuthor Author, DateTime CreatedAt);
 
 public record StringEntryDto(
     Guid Id,
@@ -38,7 +38,7 @@ public record UpdateStringEntryDto(
     KnottingTechnique? Knotting,
     DateTime DateOfStringing);
 
-public record CreateCommentDto(string Text);
+public record CreateCommentDto(string Text, CommentAuthor? Author);
 
 public record HistoryEntryDto(
     Guid Id,

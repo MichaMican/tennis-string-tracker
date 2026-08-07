@@ -229,6 +229,18 @@ label {
   align-items: flex-start;
 }
 
+.comment-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.comment-time {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
 .qr-box {
   background: #ffffff;
   padding: 1rem;

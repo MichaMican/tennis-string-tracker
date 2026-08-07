@@ -5,6 +5,12 @@ import type { HistoryEntry } from "../api";
 import { formatDateTime } from "../utils";
 import { useNoIndex } from "../useNoIndex";
 
+const COMMENT_FIELDS = ["Comment", "Player comment", "Stringer comment"];
+
+function isCommentField(field: string | null): boolean {
+  return field !== null && COMMENT_FIELDS.includes(field);
+}
+
 function describe(h: HistoryEntry): string {
   const label = h.entityLabel ? `${h.entityLabel} — ` : "";
 
@@ -15,12 +21,14 @@ function describe(h: HistoryEntry): string {
   }
 
   if (h.action === "Create") {
-    if (h.field === "Comment") return `${label}Comment added: "${h.newValue}"`;
+    if (isCommentField(h.field))
+      return `${label}${h.field} added: "${h.newValue}"`;
     return `${label}${h.newValue ?? "Created"}`;
   }
 
   if (h.action === "Delete") {
-    if (h.field === "Comment") return `${label}Comment deleted: "${h.oldValue}"`;
+    if (isCommentField(h.field))
+      return `${label}${h.field} deleted: "${h.oldValue}"`;
     return `${label}Deleted. Last state — ${h.oldValue ?? ""}`;
   }
 
