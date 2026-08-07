@@ -29,6 +29,58 @@ share a tracker via a link or QR code that can be placed on the racket.
 - **Dark / light mode** following the user's system settings, with a
   white/black (light) and black/white (dark) base palette.
 
+## Running with the published image (Portainer / Docker Compose)
+
+Every release of this repository is published as a Docker image to the GitHub
+Container Registry at `ghcr.io/michamican/tennis-string-tracker`. You can run
+the whole application (app + database) without building anything yourself.
+
+Copy and paste the following compose file into a new **Portainer stack** (or
+save it as `docker-compose.yml` and run `docker compose up -d`):
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tennis
+      POSTGRES_USER: tennis
+      POSTGRES_PASSWORD: change-me # change this to a secure password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tennis -d tennis"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: ghcr.io/michamican/tennis-string-tracker:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=tennis;Username=tennis;Password=change-me" # use the same password as above
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:
+```
+
+Make sure to replace both occurrences of `change-me` with a secure password of
+your choice. Then open <http://localhost:8080> (or your server's address). The
+database schema is created automatically via EF Core migrations on startup.
+
+Available image tags:
+
+- `latest` – latest stable release
+- `preview` – latest pre-release build from `main`
+- Specific version tags (e.g. `1.2.3`) for pinning a release
+
 ## Running with Docker
 
 ```bash
