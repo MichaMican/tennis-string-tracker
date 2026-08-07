@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TennisStringTracker.Api.Data;
 using TennisStringTracker.Api.Dtos;
 using TennisStringTracker.Api.Models;
+using TennisStringTracker.Api.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,9 +59,16 @@ var api = app.MapGroup("/api");
 
 // --- Trackers -------------------------------------------------------------
 
-api.MapPost("/trackers", async (AppDbContext db) =>
+api.MapPost("/trackers", async (CreateTrackerDto? dto, AppDbContext db) =>
 {
-    var tracker = new Tracker { Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow };
+    var tracker = new Tracker
+    {
+        Id = Guid.NewGuid(),
+        CreatedAt = DateTime.UtcNow,
+        EditPasswordHash = string.IsNullOrWhiteSpace(dto?.EditPassword)
+            ? null
+            : EditPassword.Hash(dto.EditPassword)
+    };
     db.Trackers.Add(tracker);
     await db.SaveChangesAsync();
     return Results.Created($"/api/trackers/{tracker.Id}", tracker.ToDto());
@@ -89,12 +97,28 @@ api.MapGet("/trackers/{id:guid}/history", async (Guid id, AppDbContext db) =>
     return Results.Ok(history.Select(h => h.ToDto()).ToList());
 });
 
-// --- String entries -------------------------------------------------------
-
-api.MapPost("/trackers/{id:guid}/entries", async (Guid id, CreateStringEntryDto dto, AppDbContext db) =>
+api.MapPost("/trackers/{id:guid}/verify-edit-password", async (
+    Guid id, VerifyEditPasswordDto dto, AppDbContext db) =>
 {
     var tracker = await db.Trackers.FindAsync(id);
     if (tracker is null) return Results.NotFound();
+
+    if (tracker.EditPasswordHash is null) return Results.NoContent();
+
+    return !string.IsNullOrEmpty(dto.Password)
+        && EditPassword.Verify(tracker.EditPasswordHash, dto.Password)
+        ? Results.NoContent()
+        : Results.Unauthorized();
+});
+
+// --- String entries -------------------------------------------------------
+
+api.MapPost("/trackers/{id:guid}/entries", async (
+    Guid id, CreateStringEntryDto dto, AppDbContext db, HttpRequest request) =>
+{
+    var tracker = await db.Trackers.FindAsync(id);
+    if (tracker is null) return Results.NotFound();
+    if (!EditPassword.IsAuthorized(tracker, request)) return Results.Unauthorized();
 
     var entry = new StringEntry
     {
@@ -116,8 +140,12 @@ api.MapPost("/trackers/{id:guid}/entries", async (Guid id, CreateStringEntryDto 
 });
 
 api.MapPut("/trackers/{id:guid}/entries/{entryId:guid}", async (
-    Guid id, Guid entryId, UpdateStringEntryDto dto, AppDbContext db) =>
+    Guid id, Guid entryId, UpdateStringEntryDto dto, AppDbContext db, HttpRequest request) =>
 {
+    var tracker = await db.Trackers.FindAsync(id);
+    if (tracker is null) return Results.NotFound();
+    if (!EditPassword.IsAuthorized(tracker, request)) return Results.Unauthorized();
+
     var entry = await db.StringEntries
         .Include(s => s.Comments)
         .FirstOrDefaultAsync(s => s.Id == entryId && s.TrackerId == id);
@@ -148,8 +176,12 @@ api.MapPut("/trackers/{id:guid}/entries/{entryId:guid}", async (
 });
 
 api.MapDelete("/trackers/{id:guid}/entries/{entryId:guid}", async (
-    Guid id, Guid entryId, AppDbContext db) =>
+    Guid id, Guid entryId, AppDbContext db, HttpRequest request) =>
 {
+    var tracker = await db.Trackers.FindAsync(id);
+    if (tracker is null) return Results.NotFound();
+    if (!EditPassword.IsAuthorized(tracker, request)) return Results.Unauthorized();
+
     var entry = await db.StringEntries
         .FirstOrDefaultAsync(s => s.Id == entryId && s.TrackerId == id);
     if (entry is null) return Results.NotFound();
@@ -164,10 +196,14 @@ api.MapDelete("/trackers/{id:guid}/entries/{entryId:guid}", async (
 // --- Comments -------------------------------------------------------------
 
 api.MapPost("/trackers/{id:guid}/entries/{entryId:guid}/comments", async (
-    Guid id, Guid entryId, CreateCommentDto dto, AppDbContext db) =>
+    Guid id, Guid entryId, CreateCommentDto dto, AppDbContext db, HttpRequest request) =>
 {
     if (string.IsNullOrWhiteSpace(dto.Text))
         return Results.BadRequest("Comment text is required.");
+
+    var tracker = await db.Trackers.FindAsync(id);
+    if (tracker is null) return Results.NotFound();
+    if (!EditPassword.IsAuthorized(tracker, request)) return Results.Unauthorized();
 
     var entry = await db.StringEntries
         .FirstOrDefaultAsync(s => s.Id == entryId && s.TrackerId == id);
@@ -191,8 +227,12 @@ api.MapPost("/trackers/{id:guid}/entries/{entryId:guid}/comments", async (
 });
 
 api.MapDelete("/trackers/{id:guid}/entries/{entryId:guid}/comments/{commentId:guid}", async (
-    Guid id, Guid entryId, Guid commentId, AppDbContext db) =>
+    Guid id, Guid entryId, Guid commentId, AppDbContext db, HttpRequest request) =>
 {
+    var tracker = await db.Trackers.FindAsync(id);
+    if (tracker is null) return Results.NotFound();
+    if (!EditPassword.IsAuthorized(tracker, request)) return Results.Unauthorized();
+
     var comment = await db.Comments
         .Include(c => c.StringEntry)
         .FirstOrDefaultAsync(c => c.Id == commentId
