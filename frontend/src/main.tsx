@@ -6,6 +6,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { NewTrackerPage } from "./pages/NewTrackerPage";
 import { TrackerPage } from "./pages/TrackerPage";
 import { HistoryPage } from "./pages/HistoryPage";
+import { VersionFooter } from "./components/VersionFooter";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -16,6 +17,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/trackers/:id" element={<TrackerPage />} />
         <Route path="/trackers/:id/history" element={<HistoryPage />} />
       </Routes>
+      <VersionFooter />
     </BrowserRouter>
   </StrictMode>
 );
