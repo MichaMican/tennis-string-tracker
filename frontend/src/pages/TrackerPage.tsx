@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api";
-import type { StringEntryInput, Tracker } from "../api";
+import type { CommentAuthor, StringEntryInput, Tracker } from "../api";
 import { StringEntryCard } from "../components/StringEntryCard";
 import { StringEntryForm } from "../components/StringEntryForm";
 import { useNoIndex } from "../useNoIndex";
@@ -23,9 +23,9 @@ export function TrackerPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (password?: string) => {
     try {
-      const t = await api.getTracker(id);
+      const t = await api.getTracker(id, password);
       setTracker(t);
       setError(null);
     } catch (err) {
@@ -61,29 +61,33 @@ export function TrackerPage() {
   const handleCreate = async (input: StringEntryInput) => {
     await api.createEntry(id, input, editPassword);
     setAdding(false);
-    await load();
+    await load(editPassword);
   };
 
   const handleUpdate = async (entryId: string, input: StringEntryInput) => {
     await api.updateEntry(id, entryId, input, editPassword);
-    await load();
+    await load(editPassword);
   };
 
   const handleDelete = async (entryId: string) => {
     if (!window.confirm("Delete this string entry? This cannot be undone."))
       return;
     await api.deleteEntry(id, entryId, editPassword);
-    await load();
+    await load(editPassword);
   };
 
-  const handleAddComment = async (entryId: string, text: string) => {
-    await api.addComment(id, entryId, text, editPassword);
-    await load();
+  const handleAddComment = async (
+    entryId: string,
+    text: string,
+    author: CommentAuthor
+  ) => {
+    await api.addComment(id, entryId, text, author, editPassword);
+    await load(editPassword);
   };
 
   const handleDeleteComment = async (entryId: string, commentId: string) => {
     await api.deleteComment(id, entryId, commentId, editPassword);
-    await load();
+    await load(editPassword);
   };
 
   const handleToggleEdit = () => {
@@ -110,6 +114,8 @@ export function TrackerPage() {
       setEditPassword(passwordInput);
       setAskingPassword(false);
       setEditMode(true);
+      // Reload so the stringer-only comments become visible.
+      await load(passwordInput);
     } catch {
       setPasswordError("Incorrect password.");
     } finally {
@@ -228,7 +234,9 @@ export function TrackerPage() {
               editMode={editMode}
               onUpdate={(input) => handleUpdate(entry.id, input)}
               onDelete={() => handleDelete(entry.id)}
-              onAddComment={(text) => handleAddComment(entry.id, text)}
+              onAddComment={(text, author) =>
+                handleAddComment(entry.id, text, author)
+              }
               onDeleteComment={(commentId) =>
                 handleDeleteComment(entry.id, commentId)
               }

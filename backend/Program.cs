@@ -74,23 +74,32 @@ api.MapPost("/trackers", async (CreateTrackerDto? dto, AppDbContext db) =>
     return Results.Created($"/api/trackers/{tracker.Id}", tracker.ToDto());
 });
 
-api.MapGet("/trackers/{id:guid}", async (Guid id, AppDbContext db) =>
+api.MapGet("/trackers/{id:guid}", async (Guid id, AppDbContext db, HttpRequest request) =>
 {
     var tracker = await db.Trackers
         .Include(t => t.StringEntries)
             .ThenInclude(s => s.Comments)
         .FirstOrDefaultAsync(t => t.Id == id);
 
-    return tracker is null ? Results.NotFound() : Results.Ok(tracker.ToDto());
+    if (tracker is null) return Results.NotFound();
+
+    // Stringer comments are internal notes and only exposed to editors.
+    var includeStringerComments = EditPassword.IsAuthorized(tracker, request);
+    return Results.Ok(tracker.ToDto(includeStringerComments));
 });
 
-api.MapGet("/trackers/{id:guid}/history", async (Guid id, AppDbContext db) =>
+api.MapGet("/trackers/{id:guid}/history", async (Guid id, AppDbContext db, HttpRequest request) =>
 {
-    var exists = await db.Trackers.AnyAsync(t => t.Id == id);
-    if (!exists) return Results.NotFound();
+    var tracker = await db.Trackers.FindAsync(id);
+    if (tracker is null) return Results.NotFound();
+
+    // Changes to stringer comments must not leak to players.
+    var includeStringerComments = EditPassword.IsAuthorized(tracker, request);
 
     var history = await db.HistoryEntries
         .Where(h => h.TrackerId == id)
+        .Where(h => includeStringerComments
+            || h.Field != HistoryFactory.StringerCommentField)
         .OrderByDescending(h => h.Timestamp)
         .ToListAsync();
 
@@ -136,7 +145,7 @@ api.MapPost("/trackers/{id:guid}/entries", async (
     db.HistoryEntries.AddRange(HistoryFactory.ForCreate(entry));
     await db.SaveChangesAsync();
 
-    return Results.Created($"/api/trackers/{id}/entries/{entry.Id}", entry.ToDto());
+    return Results.Created($"/api/trackers/{id}/entries/{entry.Id}", entry.ToDto(true));
 });
 
 api.MapPut("/trackers/{id:guid}/entries/{entryId:guid}", async (
@@ -172,7 +181,7 @@ api.MapPut("/trackers/{id:guid}/entries/{entryId:guid}", async (
     db.HistoryEntries.AddRange(HistoryFactory.ForUpdate(before, entry));
     await db.SaveChangesAsync();
 
-    return Results.Ok(entry.ToDto());
+    return Results.Ok(entry.ToDto(true));
 });
 
 api.MapDelete("/trackers/{id:guid}/entries/{entryId:guid}", async (
@@ -214,6 +223,7 @@ api.MapPost("/trackers/{id:guid}/entries/{entryId:guid}/comments", async (
         Id = Guid.NewGuid(),
         StringEntryId = entryId,
         Text = dto.Text.Trim(),
+        Author = dto.Author ?? CommentAuthor.Player,
         CreatedAt = DateTime.UtcNow
     };
 

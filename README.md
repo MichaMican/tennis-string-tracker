@@ -19,9 +19,12 @@ share a tracker via a link or QR code that can be placed on the racket.
   - Shows one or more *string info blocks*, ordered by date of stringing with the
     latest on top. Each block contains horizontal/vertical string weight, string
     model/manufacturer, knotting technique (2 or 4 knots), date of stringing,
-    player comments (with an input to add new comments) and a QR code download.
+    player comments (with an input to add new comments, each showing the time it
+    was created) and a QR code download.
   - An **Edit** button reveals controls to create a new string entry, edit or
-    delete existing entries, and delete comments.
+    delete existing entries, delete comments and add **stringer comments** –
+    internal notes with timestamps that are only shown in the edit view and are
+    never returned to players.
   - Marked `noindex, nofollow` and disallowed in `robots.txt` so it is not crawled.
 - **History page (`/trackers/{guid}/history`)** – lists every change (create,
   update, delete) including previous and new values, e.g.
