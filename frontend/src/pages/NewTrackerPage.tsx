@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { api } from "../api";
 import { CopyLink } from "../components/CopyLink";
 import { QrCode } from "../components/QrCode";
+import { useI18n } from "../i18n/useI18n";
 
 export function NewTrackerPage() {
+  const { t } = useI18n();
   const [trackerId, setTrackerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -15,12 +17,10 @@ export function NewTrackerPage() {
     setCreating(true);
     setError(null);
     try {
-      const t = await api.createTracker(editPassword || undefined);
-      setTrackerId(t.id);
+      const tracker = await api.createTracker(editPassword || undefined);
+      setTrackerId(tracker.id);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to create tracker"
-      );
+      setError(err instanceof Error ? err.message : t("newTracker.failed"));
     } finally {
       setCreating(false);
     }
@@ -34,20 +34,16 @@ export function NewTrackerPage() {
           style={{ alignItems: "center", maxWidth: 480 }}
           onSubmit={handleCreate}
         >
-          <h1>Create a new tracker</h1>
-          <p className="muted">
-            Optionally protect your tracker with an edit password. Anyone with
-            the link can view it, but only people who know the password can
-            make changes. The password cannot be recovered later.
-          </p>
+          <h1>{t("newTracker.title")}</h1>
+          <p className="muted">{t("newTracker.intro")}</p>
 
           <label className="stack" style={{ width: "100%" }}>
-            Edit password (optional)
+            {t("newTracker.passwordLabel")}
             <input
               type="password"
               value={editPassword}
               onChange={(e) => setEditPassword(e.target.value)}
-              placeholder="Leave empty for no protection"
+              placeholder={t("newTracker.passwordPlaceholder")}
               autoComplete="new-password"
             />
           </label>
@@ -55,11 +51,11 @@ export function NewTrackerPage() {
           {error && <p className="error">{error}</p>}
 
           <button type="submit" className="btn btn-primary" disabled={creating}>
-            {creating ? "Creating…" : "Create tracker"}
+            {creating ? t("newTracker.submitting") : t("newTracker.submit")}
           </button>
 
           <Link to="/" className="btn">
-            Back to home
+            {t("common.backToHome")}
           </Link>
         </form>
       </div>
@@ -71,18 +67,15 @@ export function NewTrackerPage() {
   return (
     <div className="center-screen">
       <div className="stack" style={{ alignItems: "center", maxWidth: 480 }}>
-        <h1>Your tracker is ready</h1>
-        <p className="muted">
-          Share this link or place the QR code on your racket to open the
-          tracker.
-        </p>
+        <h1>{t("newTracker.readyTitle")}</h1>
+        <p className="muted">{t("newTracker.readySubtitle")}</p>
 
         <CopyLink value={url} />
 
         <QrCode value={url} downloadName={`tracker-${trackerId.slice(0, 8)}`} />
 
         <Link to={`/trackers/${trackerId}`} className="btn btn-primary">
-          Open tracker
+          {t("newTracker.openTracker")}
         </Link>
       </div>
     </div>
