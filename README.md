@@ -41,14 +41,14 @@ save it as `docker-compose.yml` and run `docker compose up -d`):
 ```yaml
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: tennis
       POSTGRES_USER: tennis
       POSTGRES_PASSWORD: change-me # change this to a secure password
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tennis -d tennis"]
       interval: 5s
@@ -74,6 +74,12 @@ volumes:
 Make sure to replace both occurrences of `change-me` with a secure password of
 your choice. Then open <http://localhost:8080> (or your server's address). The
 database schema is created automatically via EF Core migrations on startup.
+
+> **Upgrading from PostgreSQL 16?** PostgreSQL 18 cannot read a data directory
+> created by an older major version, and the official image also moved its data
+> directory (hence the changed volume mount above). Dump your data with the old
+> image (`pg_dump -U tennis tennis > dump.sql`), start the stack with a fresh
+> `db-data` volume and restore it (`psql -U tennis tennis < dump.sql`).
 
 Available image tags:
 
