@@ -15,6 +15,13 @@ export function TrackerPage() {
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [editPassword, setEditPassword] = useState<string | undefined>(
+    undefined
+  );
+  const [askingPassword, setAskingPassword] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -52,31 +59,62 @@ export function TrackerPage() {
   const trackerUrl = `${window.location.origin}/trackers/${id}`;
 
   const handleCreate = async (input: StringEntryInput) => {
-    await api.createEntry(id, input);
+    await api.createEntry(id, input, editPassword);
     setAdding(false);
     await load();
   };
 
   const handleUpdate = async (entryId: string, input: StringEntryInput) => {
-    await api.updateEntry(id, entryId, input);
+    await api.updateEntry(id, entryId, input, editPassword);
     await load();
   };
 
   const handleDelete = async (entryId: string) => {
     if (!window.confirm("Delete this string entry? This cannot be undone."))
       return;
-    await api.deleteEntry(id, entryId);
+    await api.deleteEntry(id, entryId, editPassword);
     await load();
   };
 
   const handleAddComment = async (entryId: string, text: string) => {
-    await api.addComment(id, entryId, text);
+    await api.addComment(id, entryId, text, editPassword);
     await load();
   };
 
   const handleDeleteComment = async (entryId: string, commentId: string) => {
-    await api.deleteComment(id, entryId, commentId);
+    await api.deleteComment(id, entryId, commentId, editPassword);
     await load();
+  };
+
+  const handleToggleEdit = () => {
+    if (editMode) {
+      setEditMode(false);
+      setAdding(false);
+      return;
+    }
+    if (tracker?.hasEditPassword && editPassword === undefined) {
+      setAskingPassword(true);
+      setPasswordInput("");
+      setPasswordError(null);
+      return;
+    }
+    setEditMode(true);
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setVerifying(true);
+    setPasswordError(null);
+    try {
+      await api.verifyEditPassword(id, passwordInput);
+      setEditPassword(passwordInput);
+      setAskingPassword(false);
+      setEditMode(true);
+    } catch {
+      setPasswordError("Incorrect password.");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   if (loading) {
@@ -110,16 +148,51 @@ export function TrackerPage() {
         </Link>
         <button
           className={editMode ? "btn-sm btn-primary" : "btn-sm"}
-          onClick={() => {
-            setEditMode((v) => !v);
-            setAdding(false);
-          }}
+          onClick={handleToggleEdit}
         >
           {editMode ? "Done" : "Edit"}
         </button>
       </div>
 
       <h1>String history</h1>
+
+      {askingPassword && !editMode && (
+        <form
+          className="card stack"
+          style={{ marginBottom: "1.5rem" }}
+          onSubmit={handlePasswordSubmit}
+        >
+          <h3>Edit password required</h3>
+          <p className="muted">
+            This tracker is protected. Enter the edit password to make changes.
+          </p>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            placeholder="Edit password"
+            autoComplete="current-password"
+            autoFocus
+          />
+          {passwordError && <p className="error">{passwordError}</p>}
+          <div className="row">
+            <button
+              type="submit"
+              className="btn-sm btn-primary"
+              disabled={verifying}
+            >
+              {verifying ? "Checking…" : "Unlock"}
+            </button>
+            <button
+              type="button"
+              className="btn-sm"
+              onClick={() => setAskingPassword(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
 
       {editMode && (
         <div className="stack" style={{ marginBottom: "1.5rem" }}>

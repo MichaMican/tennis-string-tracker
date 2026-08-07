@@ -27,6 +27,7 @@ public static class Mapping
     public static TrackerDto ToDto(this Tracker t) => new(
         t.Id,
         t.CreatedAt,
+        t.EditPasswordHash is not null,
         t.StringEntries
             // latest stringing date on top
             .OrderByDescending(s => s.DateOfStringing)
