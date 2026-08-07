@@ -13,6 +13,12 @@ type Translate = (
   params?: Record<string, string | number>
 ) => string;
 
+const COMMENT_FIELDS = ["Comment", "Player comment", "Stringer comment"];
+
+function isCommentField(field: string | null): boolean {
+  return field !== null && COMMENT_FIELDS.includes(field);
+}
+
 function hasKey(key: string): key is TranslationKey {
   return key in translations.en;
 }
@@ -75,16 +81,20 @@ function describe(
   }
 
   if (h.action === "Create") {
-    if (h.field === "Comment")
-      return `${label}${t("history.commentAdded", { value: h.newValue ?? "" })}`;
+    if (isCommentField(h.field))
+      return `${label}${t("history.commentAdded", {
+        field: translateField(t, h.field as string),
+        value: h.newValue ?? "",
+      })}`;
     if (h.newValue === "Created new string entry" || !h.newValue)
       return `${label}${t("history.created")}`;
     return `${label}${h.newValue}`;
   }
 
   if (h.action === "Delete") {
-    if (h.field === "Comment")
+    if (isCommentField(h.field))
       return `${label}${t("history.commentDeleted", {
+        field: translateField(t, h.field as string),
         value: h.oldValue ?? "",
       })}`;
     return `${label}${t("history.deleted", {

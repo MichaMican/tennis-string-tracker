@@ -1,8 +1,11 @@
 export type KnottingTechnique = 2 | 4;
 
+export type CommentAuthor = "Player" | "Stringer";
+
 export interface Comment {
   id: string;
   text: string;
+  author: CommentAuthor;
   createdAt: string;
 }
 
@@ -88,9 +91,15 @@ export const api = {
       }),
     }),
 
-  getTracker: (id: string) => request<Tracker>(`/trackers/${id}`),
+  getTracker: (id: string, editPassword?: string) =>
+    request<Tracker>(`/trackers/${id}`, {
+      headers: editPasswordHeaders(editPassword),
+    }),
 
-  getHistory: (id: string) => request<HistoryEntry[]>(`/trackers/${id}/history`),
+  getHistory: (id: string, editPassword?: string) =>
+    request<HistoryEntry[]>(`/trackers/${id}/history`, {
+      headers: editPasswordHeaders(editPassword),
+    }),
 
   verifyEditPassword: (trackerId: string, password: string) =>
     request<void>(`/trackers/${trackerId}/verify-edit-password`, {
@@ -127,12 +136,13 @@ export const api = {
     trackerId: string,
     entryId: string,
     text: string,
+    author: CommentAuthor = "Player",
     editPassword?: string
   ) =>
     request<Comment>(`/trackers/${trackerId}/entries/${entryId}/comments`, {
       method: "POST",
       headers: editPasswordHeaders(editPassword),
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, author }),
     }),
 
   deleteComment: (

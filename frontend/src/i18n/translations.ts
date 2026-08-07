@@ -81,6 +81,10 @@ const en = {
   "entry.addComment": "Add",
   "entry.deleteComment": "Delete comment",
   "entry.qrSummary": "QR code for this tracker",
+  "entry.stringerComments": "Stringer comments",
+  "entry.stringerCommentsHint": "Only visible in the edit view — the player never sees these.",
+  "entry.noStringerComments": "No stringer comments yet.",
+  "entry.stringerCommentPlaceholder": "Add a stringer comment…",
 
   "form.date": "Date of stringing",
   "form.horizontal": "Horizontal (cross) weight, kg",
@@ -112,8 +116,8 @@ const en = {
   "history.action.Delete": "Delete",
   "history.entryLabel": "String entry ({date})",
   "history.created": "Created new string entry",
-  "history.commentAdded": 'Comment added: "{value}"',
-  "history.commentDeleted": 'Comment deleted: "{value}"',
+  "history.commentAdded": '{field} added: "{value}"',
+  "history.commentDeleted": '{field} deleted: "{value}"',
   "history.deleted": "Deleted. Last state — {value}",
   "history.field.Horizontal weight": "Horizontal weight",
   "history.field.Vertical weight": "Vertical weight",
@@ -121,6 +125,8 @@ const en = {
   "history.field.Knotting technique": "Knotting technique",
   "history.field.Date of stringing": "Date of stringing",
   "history.field.Comment": "Comment",
+  "history.field.Player comment": "Player comment",
+  "history.field.Stringer comment": "Stringer comment",
 };
 
 export type TranslationKey = keyof typeof en;
@@ -188,6 +194,10 @@ const de: Record<TranslationKey, string> = {
   "entry.addComment": "Hinzufügen",
   "entry.deleteComment": "Kommentar löschen",
   "entry.qrSummary": "QR-Code für diesen Tracker",
+  "entry.stringerComments": "Besaiter-Kommentare",
+  "entry.stringerCommentsHint": "Nur in der Bearbeitungsansicht sichtbar — der Spieler sieht diese nie.",
+  "entry.noStringerComments": "Noch keine Besaiter-Kommentare.",
+  "entry.stringerCommentPlaceholder": "Besaiter-Kommentar hinzufügen…",
 
   "form.date": "Datum der Besaitung",
   "form.horizontal": "Quersaiten-Härte, kg",
@@ -219,8 +229,8 @@ const de: Record<TranslationKey, string> = {
   "history.action.Delete": "Gelöscht",
   "history.entryLabel": "Besaitungseintrag ({date})",
   "history.created": "Neuer Besaitungseintrag erstellt",
-  "history.commentAdded": 'Kommentar hinzugefügt: "{value}"',
-  "history.commentDeleted": 'Kommentar gelöscht: "{value}"',
+  "history.commentAdded": '{field} hinzugefügt: "{value}"',
+  "history.commentDeleted": '{field} gelöscht: "{value}"',
   "history.deleted": "Gelöscht. Letzter Stand — {value}",
   "history.field.Horizontal weight": "Quersaiten-Härte",
   "history.field.Vertical weight": "Längssaiten-Härte",
@@ -228,6 +238,8 @@ const de: Record<TranslationKey, string> = {
   "history.field.Knotting technique": "Knotentechnik",
   "history.field.Date of stringing": "Datum der Besaitung",
   "history.field.Comment": "Kommentar",
+  "history.field.Player comment": "Spielerkommentar",
+  "history.field.Stringer comment": "Besaiter-Kommentar",
 };
 
 const cs: Record<TranslationKey, string> = {
@@ -293,6 +305,10 @@ const cs: Record<TranslationKey, string> = {
   "entry.addComment": "Přidat",
   "entry.deleteComment": "Smazat komentář",
   "entry.qrSummary": "QR kód pro toto sledování",
+  "entry.stringerComments": "Komentáře vypletače",
+  "entry.stringerCommentsHint": "Viditelné pouze v režimu úprav — hráč je nikdy neuvidí.",
+  "entry.noStringerComments": "Zatím žádné komentáře vypletače.",
+  "entry.stringerCommentPlaceholder": "Přidat komentář vypletače…",
 
   "form.date": "Datum vypletení",
   "form.horizontal": "Tvrdost příčných strun, kg",
@@ -324,8 +340,8 @@ const cs: Record<TranslationKey, string> = {
   "history.action.Delete": "Smazáno",
   "history.entryLabel": "Záznam o výpletu ({date})",
   "history.created": "Vytvořen nový záznam o výpletu",
-  "history.commentAdded": 'Přidán komentář: "{value}"',
-  "history.commentDeleted": 'Smazán komentář: "{value}"',
+  "history.commentAdded": '{field} přidán: "{value}"',
+  "history.commentDeleted": '{field} smazán: "{value}"',
   "history.deleted": "Smazáno. Poslední stav — {value}",
   "history.field.Horizontal weight": "Tvrdost příčných strun",
   "history.field.Vertical weight": "Tvrdost podélných strun",
@@ -333,6 +349,8 @@ const cs: Record<TranslationKey, string> = {
   "history.field.Knotting technique": "Technika uzlování",
   "history.field.Date of stringing": "Datum vypletení",
   "history.field.Comment": "Komentář",
+  "history.field.Player comment": "Komentář hráče",
+  "history.field.Stringer comment": "Komentář vypletače",
 };
 
 export const translations: Record<Language, Record<TranslationKey, string>> = {
