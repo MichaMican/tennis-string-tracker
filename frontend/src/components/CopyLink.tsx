@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useI18n } from "../i18n/useI18n";
 
 interface Props {
   value: string;
   label?: string;
 }
 
-export function CopyLink({ value, label = "Copy link" }: Props) {
+export function CopyLink({ value, label }: Props) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -28,7 +30,7 @@ export function CopyLink({ value, label = "Copy link" }: Props) {
     <div className="row" style={{ width: "100%" }}>
       <input readOnly value={value} onFocus={(e) => e.target.select()} />
       <button type="button" className="btn-primary" onClick={copy}>
-        {copied ? "Copied!" : label}
+        {copied ? t("copy.copied") : (label ?? t("copy.copy"))}
       </button>
     </div>
   );

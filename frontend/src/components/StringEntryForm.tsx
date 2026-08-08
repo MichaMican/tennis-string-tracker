@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { KnottingTechnique, StringEntry, StringEntryInput } from "../api";
 import { todayInputValue } from "../utils";
+import { useI18n } from "../i18n/useI18n";
 
 interface Props {
   initial?: StringEntry;
@@ -21,6 +22,7 @@ export function StringEntryForm({
   onSubmit,
   onCancel,
 }: Props) {
+  const { t } = useI18n();
   const [horizontal, setHorizontal] = useState(
     initial?.horizontalWeight?.toString() ?? ""
   );
@@ -50,7 +52,9 @@ export function StringEntryForm({
         dateOfStringing: new Date(date).toISOString(),
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(
+        err instanceof Error ? err.message : t("common.somethingWentWrong")
+      );
     } finally {
       setBusy(false);
     }
@@ -59,7 +63,7 @@ export function StringEntryForm({
   return (
     <form className="stack" onSubmit={submit}>
       <div>
-        <label htmlFor="date">Date of stringing</label>
+        <label htmlFor="date">{t("form.date")}</label>
         <input
           id="date"
           type="date"
@@ -71,51 +75,51 @@ export function StringEntryForm({
 
       <div className="grid-2">
         <div>
-          <label htmlFor="horizontal">Horizontal (cross) weight, kg</label>
+          <label htmlFor="horizontal">{t("form.horizontal")}</label>
           <input
             id="horizontal"
             type="number"
             step="0.1"
             min="0"
             value={horizontal}
-            placeholder="e.g. 23"
+            placeholder={t("form.examplePlaceholder", { value: 23 })}
             onChange={(e) => setHorizontal(e.target.value)}
           />
         </div>
         <div>
-          <label htmlFor="vertical">Vertical (main) weight, kg</label>
+          <label htmlFor="vertical">{t("form.vertical")}</label>
           <input
             id="vertical"
             type="number"
             step="0.1"
             min="0"
             value={vertical}
-            placeholder="e.g. 24"
+            placeholder={t("form.examplePlaceholder", { value: 24 })}
             onChange={(e) => setVertical(e.target.value)}
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="model">String model / manufacturer</label>
+        <label htmlFor="model">{t("form.model")}</label>
         <input
           id="model"
           value={model}
-          placeholder="e.g. Luxilon ALU Power"
+          placeholder={t("form.modelPlaceholder")}
           onChange={(e) => setModel(e.target.value)}
         />
       </div>
 
       <div>
-        <label htmlFor="knotting">Knotting technique</label>
+        <label htmlFor="knotting">{t("form.knotting")}</label>
         <select
           id="knotting"
           value={knotting}
           onChange={(e) => setKnotting(e.target.value)}
         >
-          <option value="">Not specified</option>
-          <option value="2">2 knots</option>
-          <option value="4">4 knots</option>
+          <option value="">{t("form.knottingNone")}</option>
+          <option value="2">{t("knotting.2")}</option>
+          <option value="4">{t("knotting.4")}</option>
         </select>
       </div>
 
@@ -123,11 +127,11 @@ export function StringEntryForm({
 
       <div className="row">
         <button type="submit" className="btn-primary" disabled={busy}>
-          {busy ? "Saving…" : submitLabel}
+          {busy ? t("form.saving") : submitLabel}
         </button>
         {onCancel && (
           <button type="button" onClick={onCancel} disabled={busy}>
-            Cancel
+            {t("common.cancel")}
           </button>
         )}
       </div>
