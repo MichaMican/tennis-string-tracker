@@ -5,9 +5,11 @@ import type { CommentAuthor, StringEntryInput, Tracker } from "../api";
 import { StringEntryCard } from "../components/StringEntryCard";
 import { StringEntryForm } from "../components/StringEntryForm";
 import { useNoIndex } from "../useNoIndex";
+import { useI18n } from "../i18n/useI18n";
 
 export function TrackerPage() {
   useNoIndex();
+  const { t } = useI18n();
   const { id = "" } = useParams();
 
   const [tracker, setTracker] = useState<Tracker | null>(null);
@@ -29,11 +31,11 @@ export function TrackerPage() {
       setTracker(t);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load tracker");
+      setError(err instanceof Error ? err.message : t("tracker.loadFailed"));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +48,7 @@ export function TrackerPage() {
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : "Failed to load tracker");
+        setError(err instanceof Error ? err.message : t("tracker.loadFailed"));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -54,7 +56,7 @@ export function TrackerPage() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, t]);
 
   const trackerUrl = `${window.location.origin}/trackers/${id}`;
 
@@ -70,7 +72,7 @@ export function TrackerPage() {
   };
 
   const handleDelete = async (entryId: string) => {
-    if (!window.confirm("Delete this string entry? This cannot be undone."))
+    if (!window.confirm(t("tracker.confirmDeleteEntry")))
       return;
     await api.deleteEntry(id, entryId, editPassword);
     await load(editPassword);
@@ -117,7 +119,7 @@ export function TrackerPage() {
       // Reload so the stringer-only comments become visible.
       await load(passwordInput);
     } catch {
-      setPasswordError("Incorrect password.");
+      setPasswordError(t("tracker.passwordIncorrect"));
     } finally {
       setVerifying(false);
     }
@@ -126,7 +128,7 @@ export function TrackerPage() {
   if (loading) {
     return (
       <div className="center-screen">
-        <p className="muted">Loading…</p>
+        <p className="muted">{t("common.loading")}</p>
       </div>
     );
   }
@@ -134,9 +136,9 @@ export function TrackerPage() {
   if (error || !tracker) {
     return (
       <div className="center-screen">
-        <p className="error">{error ?? "Tracker not found"}</p>
+        <p className="error">{error ?? t("tracker.notFound")}</p>
         <Link to="/" className="btn">
-          Back to home
+          {t("common.backToHome")}
         </Link>
       </div>
     );
@@ -146,21 +148,21 @@ export function TrackerPage() {
     <div className="container">
       <div className="topbar">
         <Link to="/" className="btn btn-sm">
-          ← Home
+          {t("common.home")}
         </Link>
         <div className="spacer" />
         <Link to={`/trackers/${id}/history`} className="btn btn-sm">
-          History
+          {t("tracker.history")}
         </Link>
         <button
           className={editMode ? "btn-sm btn-primary" : "btn-sm"}
           onClick={handleToggleEdit}
         >
-          {editMode ? "Done" : "Edit"}
+          {editMode ? t("tracker.done") : t("tracker.edit")}
         </button>
       </div>
 
-      <h1>String history</h1>
+      <h1>{t("tracker.title")}</h1>
 
       {askingPassword && !editMode && (
         <form
@@ -168,15 +170,13 @@ export function TrackerPage() {
           style={{ marginBottom: "1.5rem" }}
           onSubmit={handlePasswordSubmit}
         >
-          <h3>Edit password required</h3>
-          <p className="muted">
-            This tracker is protected. Enter the edit password to make changes.
-          </p>
+          <h3>{t("tracker.passwordTitle")}</h3>
+          <p className="muted">{t("tracker.passwordIntro")}</p>
           <input
             type="password"
             value={passwordInput}
             onChange={(e) => setPasswordInput(e.target.value)}
-            placeholder="Edit password"
+            placeholder={t("tracker.passwordPlaceholder")}
             autoComplete="current-password"
             autoFocus
           />
@@ -187,14 +187,14 @@ export function TrackerPage() {
               className="btn-sm btn-primary"
               disabled={verifying}
             >
-              {verifying ? "Checking…" : "Unlock"}
+              {verifying ? t("tracker.checking") : t("tracker.unlock")}
             </button>
             <button
               type="button"
               className="btn-sm"
               onClick={() => setAskingPassword(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </button>
           </div>
         </form>
@@ -204,16 +204,16 @@ export function TrackerPage() {
         <div className="stack" style={{ marginBottom: "1.5rem" }}>
           {adding ? (
             <div className="card">
-              <h3>New string entry</h3>
+              <h3>{t("tracker.newEntryTitle")}</h3>
               <StringEntryForm
-                submitLabel="Add entry"
+                submitLabel={t("tracker.addEntry")}
                 onSubmit={handleCreate}
                 onCancel={() => setAdding(false)}
               />
             </div>
           ) : (
             <button className="btn-primary" onClick={() => setAdding(true)}>
-              + Create new string entry
+              {t("tracker.createEntry")}
             </button>
           )}
         </div>
@@ -221,8 +221,8 @@ export function TrackerPage() {
 
       {tracker.stringEntries.length === 0 ? (
         <p className="muted">
-          No string entries yet.
-          {!editMode && " Press Edit to add the first one."}
+          {t("tracker.noEntries")}
+          {!editMode && t("tracker.noEntriesHint")}
         </p>
       ) : (
         <div className="stack">

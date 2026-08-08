@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { useI18n } from "../i18n/useI18n";
 
 interface Props {
   value: string;
@@ -15,6 +16,7 @@ export function QrCode({
   downloadName = "tracker-qr",
   showDownload = true,
 }: Props) {
+  const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
 
   const download = () => {
@@ -34,7 +36,7 @@ export function QrCode({
       </div>
       {showDownload && (
         <button type="button" className="btn-sm" onClick={download}>
-          Download QR code
+          {t("qr.download")}
         </button>
       )}
     </div>

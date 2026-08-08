@@ -1,11 +1,12 @@
 import { useState } from "react";
-import type { Comment, CommentAuthor, StringEntry, StringEntryInput } from "../api";
-import {
-  formatDate,
-  formatDateTime,
-  formatKnotting,
-  formatWeight,
-} from "../utils";
+import type {
+  Comment,
+  CommentAuthor,
+  StringEntry,
+  StringEntryInput,
+} from "../api";
+import { useFormatters } from "../useFormatters";
+import { useI18n } from "../i18n/useI18n";
 import { QrCode } from "./QrCode";
 import { StringEntryForm } from "./StringEntryForm";
 
@@ -28,6 +29,9 @@ export function StringEntryCard({
   onAddComment,
   onDeleteComment,
 }: Props) {
+  const { t } = useI18n();
+  const { formatDate, formatDateTime, formatKnotting, formatWeight } =
+    useFormatters();
   const [editing, setEditing] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [stringerCommentText, setStringerCommentText] = useState("");
@@ -70,9 +74,9 @@ export function StringEntryCard({
         <button
           className="btn-sm btn-danger"
           onClick={() => onDeleteComment(c.id)}
-          aria-label="Delete comment"
+          aria-label={t("entry.deleteComment")}
         >
-          Delete
+          {t("entry.delete")}
         </button>
       )}
     </div>
@@ -81,10 +85,10 @@ export function StringEntryCard({
   if (editing) {
     return (
       <div className="card">
-        <h3>Edit string entry</h3>
+        <h3>{t("entry.editTitle")}</h3>
         <StringEntryForm
           initial={entry}
-          submitLabel="Save changes"
+          submitLabel={t("entry.saveChanges")}
           onSubmit={async (input) => {
             await onUpdate(input);
             setEditing(false);
@@ -103,34 +107,34 @@ export function StringEntryCard({
         {editMode && (
           <div className="row">
             <button className="btn-sm" onClick={() => setEditing(true)}>
-              Edit
+              {t("entry.editButton")}
             </button>
             <button
               className="btn-sm btn-danger"
               onClick={() => onDelete()}
             >
-              Delete
+              {t("entry.delete")}
             </button>
           </div>
         )}
       </div>
 
       <dl className="info-grid">
-        <dt>Horizontal weight</dt>
+        <dt>{t("entry.horizontalWeight")}</dt>
         <dd>{formatWeight(entry.horizontalWeight)}</dd>
-        <dt>Vertical weight</dt>
+        <dt>{t("entry.verticalWeight")}</dt>
         <dd>{formatWeight(entry.verticalWeight)}</dd>
-        <dt>String model / manufacturer</dt>
-        <dd>{entry.stringModel ?? "—"}</dd>
-        <dt>Knotting technique</dt>
+        <dt>{t("entry.stringModel")}</dt>
+        <dd>{entry.stringModel ?? t("common.notSpecified")}</dd>
+        <dt>{t("entry.knotting")}</dt>
         <dd>{formatKnotting(entry.knotting)}</dd>
       </dl>
 
       <div>
-        <h4 style={{ marginBottom: "0.25rem" }}>Player comments</h4>
+        <h4 style={{ marginBottom: "0.25rem" }}>{t("entry.comments")}</h4>
         {playerComments.length === 0 && (
           <p className="muted" style={{ margin: "0.25rem 0" }}>
-            No comments yet.
+            {t("entry.noComments")}
           </p>
         )}
         {playerComments.map(renderComment)}
@@ -142,7 +146,7 @@ export function StringEntryCard({
         >
           <input
             value={commentText}
-            placeholder="Add a comment…"
+            placeholder={t("entry.commentPlaceholder")}
             onChange={(e) => setCommentText(e.target.value)}
           />
           <button
@@ -150,20 +154,22 @@ export function StringEntryCard({
             className="btn-sm"
             disabled={busy || commentText.trim() === ""}
           >
-            Add
+            {t("entry.addComment")}
           </button>
         </form>
       </div>
 
       {editMode && (
         <div>
-          <h4 style={{ marginBottom: "0.25rem" }}>Stringer comments</h4>
+          <h4 style={{ marginBottom: "0.25rem" }}>
+            {t("entry.stringerComments")}
+          </h4>
           <p className="muted" style={{ margin: "0.25rem 0" }}>
-            Only visible in the edit view — the player never sees these.
+            {t("entry.stringerCommentsHint")}
           </p>
           {stringerComments.length === 0 && (
             <p className="muted" style={{ margin: "0.25rem 0" }}>
-              No stringer comments yet.
+              {t("entry.noStringerComments")}
             </p>
           )}
           {stringerComments.map(renderComment)}
@@ -175,7 +181,7 @@ export function StringEntryCard({
           >
             <input
               value={stringerCommentText}
-              placeholder="Add a stringer comment…"
+              placeholder={t("entry.stringerCommentPlaceholder")}
               onChange={(e) => setStringerCommentText(e.target.value)}
             />
             <button
@@ -183,7 +189,7 @@ export function StringEntryCard({
               className="btn-sm"
               disabled={busy || stringerCommentText.trim() === ""}
             >
-              Add
+              {t("entry.addComment")}
             </button>
           </form>
         </div>
@@ -191,7 +197,7 @@ export function StringEntryCard({
 
       <details>
         <summary className="muted" style={{ cursor: "pointer" }}>
-          QR code for this tracker
+          {t("entry.qrSummary")}
         </summary>
         <div style={{ marginTop: "0.75rem" }}>
           <QrCode

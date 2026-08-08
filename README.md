@@ -31,6 +31,10 @@ share a tracker via a link or QR code that can be placed on the racket.
   `Horizontal weight: 23 -> 24`, plus the last state of an entry before deletion.
 - **Dark / light mode** following the user's system settings, with a
   white/black (light) and black/white (dark) base palette.
+- **Localization** in English, German and Czech. The language is taken from the
+  browser/system settings (falling back to English for unsupported languages)
+  and can be overridden with the switcher in the top right corner. The manual
+  choice is stored in `localStorage` and therefore survives a reload.
 
 ## Running with the published image (Portainer / Docker Compose)
 
