@@ -211,14 +211,16 @@ api.MapPost("/trackers/{id:guid}/entries/{entryId:guid}/comments", async (
 {
     if (string.IsNullOrWhiteSpace(dto.Text))
         return Results.BadRequest("Comment text is required.");
-    if (dto.Text.Trim().Length > MaxCommentLength)
+    if (dto.Text.Length > MaxCommentLength)
         return Results.BadRequest($"Comment text must be at most {MaxCommentLength} characters.");
 
     var tracker = await db.Trackers.FindAsync(id);
     if (tracker is null) return Results.NotFound();
 
     // Players may comment on any tracker they have the link to; stringer notes
-    // are internal and stay behind the edit password.
+    // are internal and stay behind the edit password. The requested author only
+    // ever restricts access here — creating a stringer note still requires the
+    // password, so it cannot be used to gain privileges.
     var author = dto.Author ?? CommentAuthor.Player;
     if (author == CommentAuthor.Stringer && !EditPassword.IsAuthorized(tracker, request))
         return Results.Unauthorized();
