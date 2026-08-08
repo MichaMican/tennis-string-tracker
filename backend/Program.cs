@@ -204,15 +204,24 @@ api.MapDelete("/trackers/{id:guid}/entries/{entryId:guid}", async (
 
 // --- Comments -------------------------------------------------------------
 
+const int MaxCommentLength = 2000;
+
 api.MapPost("/trackers/{id:guid}/entries/{entryId:guid}/comments", async (
     Guid id, Guid entryId, CreateCommentDto dto, AppDbContext db, HttpRequest request) =>
 {
     if (string.IsNullOrWhiteSpace(dto.Text))
         return Results.BadRequest("Comment text is required.");
+    if (dto.Text.Trim().Length > MaxCommentLength)
+        return Results.BadRequest($"Comment text must be at most {MaxCommentLength} characters.");
 
     var tracker = await db.Trackers.FindAsync(id);
     if (tracker is null) return Results.NotFound();
-    if (!EditPassword.IsAuthorized(tracker, request)) return Results.Unauthorized();
+
+    // Players may comment on any tracker they have the link to; stringer notes
+    // are internal and stay behind the edit password.
+    var author = dto.Author ?? CommentAuthor.Player;
+    if (author == CommentAuthor.Stringer && !EditPassword.IsAuthorized(tracker, request))
+        return Results.Unauthorized();
 
     var entry = await db.StringEntries
         .FirstOrDefaultAsync(s => s.Id == entryId && s.TrackerId == id);
@@ -223,7 +232,7 @@ api.MapPost("/trackers/{id:guid}/entries/{entryId:guid}/comments", async (
         Id = Guid.NewGuid(),
         StringEntryId = entryId,
         Text = dto.Text.Trim(),
-        Author = dto.Author ?? CommentAuthor.Player,
+        Author = author,
         CreatedAt = DateTime.UtcNow
     };
 
