@@ -337,7 +337,8 @@ api.MapGet("/stringers/bookmarks", async (AppDbContext db, HttpRequest request) 
         .Select(b => new
         {
             Bookmark = b,
-            LatestEntry = b.Tracker!.StringEntries
+            LatestEntry = db.StringEntries
+                .Where(s => s.TrackerId == b.TrackerId)
                 .OrderByDescending(s => s.DateOfStringing)
                 .ThenByDescending(s => s.CreatedAt)
                 .FirstOrDefault()
