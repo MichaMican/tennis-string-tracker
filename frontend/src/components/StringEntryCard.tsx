@@ -20,6 +20,83 @@ interface Props {
   onDeleteComment: (commentId: string) => Promise<void>;
 }
 
+interface CommentFormProps {
+  placeholder: string;
+  onSubmit: (text: string) => Promise<void>;
+}
+
+/**
+ * Single-line comment form.
+ *
+ * Mobile browsers need some extra care here: the submit button stays enabled so
+ * a tap is always delivered (iOS ignores taps on disabled buttons), the tap does
+ * not blur the input — which would close the on-screen keyboard and reflow the
+ * page out from under the finger before the click lands — and the keyboard's
+ * enter key is handled explicitly instead of relying on implicit form
+ * submission. Failures are shown instead of being swallowed silently.
+ */
+function CommentForm({ placeholder, onSubmit }: CommentFormProps) {
+  const { t } = useI18n();
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    const trimmed = text.trim();
+    if (busy || trimmed === "") return;
+    setBusy(true);
+    setError(null);
+    try {
+      await onSubmit(trimmed);
+      setText("");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : t("common.somethingWentWrong")
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form
+      className="row"
+      style={{ marginTop: "0.75rem" }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void submit();
+      }}
+    >
+      <input
+        type="text"
+        value={text}
+        placeholder={placeholder}
+        maxLength={2000}
+        enterKeyHint="send"
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+          e.preventDefault();
+          void submit();
+        }}
+      />
+      <button
+        type="submit"
+        className="btn-sm"
+        disabled={busy}
+        onMouseDown={(e) => e.preventDefault()}
+      >
+        {t("entry.addComment")}
+      </button>
+      {error && (
+        <p className="error" style={{ width: "100%", margin: 0 }}>
+          {error}
+        </p>
+      )}
+    </form>
+  );
+}
+
 export function StringEntryCard({
   entry,
   trackerUrl,
@@ -33,36 +110,9 @@ export function StringEntryCard({
   const { formatDate, formatDateTime, formatKnotting, formatWeight } =
     useFormatters();
   const [editing, setEditing] = useState(false);
-  const [commentText, setCommentText] = useState("");
-  const [stringerCommentText, setStringerCommentText] = useState("");
-  const [busy, setBusy] = useState(false);
 
   const playerComments = entry.comments.filter((c) => c.author !== "Stringer");
   const stringerComments = entry.comments.filter((c) => c.author === "Stringer");
-
-  const submitComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (commentText.trim() === "") return;
-    setBusy(true);
-    try {
-      await onAddComment(commentText.trim(), "Player");
-      setCommentText("");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const submitStringerComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (stringerCommentText.trim() === "") return;
-    setBusy(true);
-    try {
-      await onAddComment(stringerCommentText.trim(), "Stringer");
-      setStringerCommentText("");
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const renderComment = (c: Comment) => (
     <div className="comment" key={c.id}>
@@ -139,24 +189,10 @@ export function StringEntryCard({
         )}
         {playerComments.map(renderComment)}
 
-        <form
-          className="row"
-          style={{ marginTop: "0.75rem" }}
-          onSubmit={submitComment}
-        >
-          <input
-            value={commentText}
-            placeholder={t("entry.commentPlaceholder")}
-            onChange={(e) => setCommentText(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="btn-sm"
-            disabled={busy || commentText.trim() === ""}
-          >
-            {t("entry.addComment")}
-          </button>
-        </form>
+        <CommentForm
+          placeholder={t("entry.commentPlaceholder")}
+          onSubmit={(text) => onAddComment(text, "Player")}
+        />
       </div>
 
       {editMode && (
@@ -174,24 +210,10 @@ export function StringEntryCard({
           )}
           {stringerComments.map(renderComment)}
 
-          <form
-            className="row"
-            style={{ marginTop: "0.75rem" }}
-            onSubmit={submitStringerComment}
-          >
-            <input
-              value={stringerCommentText}
-              placeholder={t("entry.stringerCommentPlaceholder")}
-              onChange={(e) => setStringerCommentText(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="btn-sm"
-              disabled={busy || stringerCommentText.trim() === ""}
-            >
-              {t("entry.addComment")}
-            </button>
-          </form>
+          <CommentForm
+            placeholder={t("entry.stringerCommentPlaceholder")}
+            onSubmit={(text) => onAddComment(text, "Stringer")}
+          />
         </div>
       )}
 
