@@ -12,6 +12,9 @@ export function LandingPage() {
         <Link to="/trackers/new" className="btn btn-primary">
           {t("landing.createTracker")}
         </Link>
+        <Link to="/stringer" className="btn">
+          {t("landing.stringerArea")}
+        </Link>
       </div>
     </div>
   );

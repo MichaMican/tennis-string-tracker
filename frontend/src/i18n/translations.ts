@@ -32,6 +32,43 @@ const en = {
   "landing.subtitle":
     "Keep a history of every string change on your racket and share it with a simple QR code.",
   "landing.createTracker": "Create tracker",
+  "landing.stringerArea": "Stringer area",
+
+  "stringer.title": "Stringer area",
+  "stringer.intro":
+    "Log in or create a stringer account to bookmark trackers and give them names and tags. Bookmarks are view-only — editing a tracker still requires its own edit password.",
+  "stringer.username": "Username",
+  "stringer.password": "Password",
+  "stringer.login": "Log in",
+  "stringer.register": "Create account",
+  "stringer.switchToRegister": "New here? Create an account",
+  "stringer.switchToLogin": "Already have an account? Log in",
+  "stringer.authBusy": "Please wait…",
+  "stringer.authFailed": "Invalid username or password.",
+  "stringer.logout": "Log out",
+  "stringer.bookmarksTitle": "My bookmarked trackers",
+  "stringer.bookmarksHint":
+    "Click a bookmark to open its tracker page. Trackers cannot be edited from here.",
+  "stringer.addBookmarkTitle": "Add a bookmark",
+  "stringer.trackerInput": "Tracker ID or URL",
+  "stringer.trackerInputPlaceholder": "Paste a tracker ID or tracker link…",
+  "stringer.bookmarkName": "Name (optional)",
+  "stringer.bookmarkNamePlaceholder": "e.g. Anna's racket",
+  "stringer.bookmarkTags": "Tags (comma separated, optional)",
+  "stringer.bookmarkTagsPlaceholder": "e.g. club, junior",
+  "stringer.addBookmark": "Add bookmark",
+  "stringer.addingBookmark": "Adding…",
+  "stringer.scanToAdd": "Scan to add",
+  "stringer.scanCameraError":
+    "Could not access the camera. Please allow camera access and try again.",
+  "stringer.invalidTracker": "Could not find a tracker ID in the input.",
+  "stringer.loadFailed": "Failed to load bookmarks",
+  "stringer.noBookmarks": "No bookmarks yet. Add your first tracker above.",
+  "stringer.unnamedTracker": "Unnamed tracker",
+  "stringer.editBookmark": "Edit",
+  "stringer.removeBookmark": "Remove",
+  "stringer.confirmRemoveBookmark": "Remove this bookmark?",
+  "stringer.save": "Save",
 
   "newTracker.title": "Create a new tracker",
   "newTracker.intro":
@@ -145,6 +182,44 @@ const de: Record<TranslationKey, string> = {
   "landing.subtitle":
     "Behalte den Überblick über jede Besaitung deines Schlägers und teile sie per QR-Code.",
   "landing.createTracker": "Tracker erstellen",
+  "landing.stringerArea": "Besaiter-Bereich",
+
+  "stringer.title": "Besaiter-Bereich",
+  "stringer.intro":
+    "Melde dich an oder erstelle ein Besaiter-Konto, um Tracker als Lesezeichen zu speichern und ihnen Namen und Tags zu geben. Lesezeichen sind nur zum Ansehen — zum Bearbeiten eines Trackers ist weiterhin dessen eigenes Bearbeitungspasswort nötig.",
+  "stringer.username": "Benutzername",
+  "stringer.password": "Passwort",
+  "stringer.login": "Anmelden",
+  "stringer.register": "Konto erstellen",
+  "stringer.switchToRegister": "Neu hier? Konto erstellen",
+  "stringer.switchToLogin": "Schon ein Konto? Anmelden",
+  "stringer.authBusy": "Bitte warten…",
+  "stringer.authFailed": "Benutzername oder Passwort ungültig.",
+  "stringer.logout": "Abmelden",
+  "stringer.bookmarksTitle": "Meine gespeicherten Tracker",
+  "stringer.bookmarksHint":
+    "Klicke auf ein Lesezeichen, um die Tracker-Seite zu öffnen. Tracker können hier nicht bearbeitet werden.",
+  "stringer.addBookmarkTitle": "Lesezeichen hinzufügen",
+  "stringer.trackerInput": "Tracker-ID oder URL",
+  "stringer.trackerInputPlaceholder": "Tracker-ID oder Tracker-Link einfügen…",
+  "stringer.bookmarkName": "Name (optional)",
+  "stringer.bookmarkNamePlaceholder": "z. B. Annas Schläger",
+  "stringer.bookmarkTags": "Tags (durch Komma getrennt, optional)",
+  "stringer.bookmarkTagsPlaceholder": "z. B. Verein, Jugend",
+  "stringer.addBookmark": "Lesezeichen hinzufügen",
+  "stringer.addingBookmark": "Wird hinzugefügt…",
+  "stringer.scanToAdd": "Zum Hinzufügen scannen",
+  "stringer.scanCameraError":
+    "Kamera konnte nicht verwendet werden. Bitte Kamerazugriff erlauben und erneut versuchen.",
+  "stringer.invalidTracker": "In der Eingabe wurde keine Tracker-ID gefunden.",
+  "stringer.loadFailed": "Lesezeichen konnten nicht geladen werden",
+  "stringer.noBookmarks":
+    "Noch keine Lesezeichen. Füge oben deinen ersten Tracker hinzu.",
+  "stringer.unnamedTracker": "Unbenannter Tracker",
+  "stringer.editBookmark": "Bearbeiten",
+  "stringer.removeBookmark": "Entfernen",
+  "stringer.confirmRemoveBookmark": "Dieses Lesezeichen entfernen?",
+  "stringer.save": "Speichern",
 
   "newTracker.title": "Neuen Tracker erstellen",
   "newTracker.intro":
@@ -256,6 +331,44 @@ const cs: Record<TranslationKey, string> = {
   "landing.subtitle":
     "Uchovejte si historii každé výměny výpletu rakety a sdílejte ji pomocí jednoduchého QR kódu.",
   "landing.createTracker": "Vytvořit sledování",
+  "landing.stringerArea": "Sekce vypletače",
+
+  "stringer.title": "Sekce vypletače",
+  "stringer.intro":
+    "Přihlaste se nebo si vytvořte účet vypletače, abyste si mohli ukládat sledování do záložek a přidávat jim názvy a štítky. Záložky jsou pouze pro prohlížení — úpravy sledování stále vyžadují jeho vlastní heslo pro úpravy.",
+  "stringer.username": "Uživatelské jméno",
+  "stringer.password": "Heslo",
+  "stringer.login": "Přihlásit se",
+  "stringer.register": "Vytvořit účet",
+  "stringer.switchToRegister": "Jste tu poprvé? Vytvořte si účet",
+  "stringer.switchToLogin": "Už máte účet? Přihlaste se",
+  "stringer.authBusy": "Čekejte prosím…",
+  "stringer.authFailed": "Neplatné uživatelské jméno nebo heslo.",
+  "stringer.logout": "Odhlásit se",
+  "stringer.bookmarksTitle": "Moje uložená sledování",
+  "stringer.bookmarksHint":
+    "Kliknutím na záložku otevřete stránku sledování. Sledování zde nelze upravovat.",
+  "stringer.addBookmarkTitle": "Přidat záložku",
+  "stringer.trackerInput": "ID sledování nebo URL",
+  "stringer.trackerInputPlaceholder": "Vložte ID sledování nebo odkaz…",
+  "stringer.bookmarkName": "Název (volitelné)",
+  "stringer.bookmarkNamePlaceholder": "např. Annina raketa",
+  "stringer.bookmarkTags": "Štítky (oddělené čárkou, volitelné)",
+  "stringer.bookmarkTagsPlaceholder": "např. klub, junior",
+  "stringer.addBookmark": "Přidat záložku",
+  "stringer.addingBookmark": "Přidávání…",
+  "stringer.scanToAdd": "Naskenovat a přidat",
+  "stringer.scanCameraError":
+    "Nepodařilo se získat přístup ke kameře. Povolte prosím přístup ke kameře a zkuste to znovu.",
+  "stringer.invalidTracker": "Ve vstupu nebylo nalezeno ID sledování.",
+  "stringer.loadFailed": "Záložky se nepodařilo načíst",
+  "stringer.noBookmarks":
+    "Zatím žádné záložky. Přidejte první sledování výše.",
+  "stringer.unnamedTracker": "Nepojmenované sledování",
+  "stringer.editBookmark": "Upravit",
+  "stringer.removeBookmark": "Odebrat",
+  "stringer.confirmRemoveBookmark": "Odebrat tuto záložku?",
+  "stringer.save": "Uložit",
 
   "newTracker.title": "Vytvořit nové sledování",
   "newTracker.intro":

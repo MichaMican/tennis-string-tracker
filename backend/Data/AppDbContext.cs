@@ -11,6 +11,8 @@ public class AppDbContext : DbContext
     public DbSet<StringEntry> StringEntries => Set<StringEntry>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<HistoryEntry> HistoryEntries => Set<HistoryEntry>();
+    public DbSet<Stringer> Stringers => Set<Stringer>();
+    public DbSet<TrackerBookmark> TrackerBookmarks => Set<TrackerBookmark>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +49,28 @@ public class AppDbContext : DbContext
         {
             e.HasKey(h => h.Id);
             e.HasIndex(h => h.TrackerId);
+        });
+
+        modelBuilder.Entity<Stringer>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Username).HasMaxLength(64);
+            e.HasIndex(s => s.Username).IsUnique();
+            e.HasMany(s => s.Bookmarks)
+                .WithOne(b => b.Stringer!)
+                .HasForeignKey(b => b.StringerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TrackerBookmark>(e =>
+        {
+            e.HasKey(b => b.Id);
+            e.Property(b => b.Name).HasMaxLength(200);
+            e.HasIndex(b => new { b.StringerId, b.TrackerId }).IsUnique();
+            e.HasOne(b => b.Tracker)
+                .WithMany()
+                .HasForeignKey(b => b.TrackerId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

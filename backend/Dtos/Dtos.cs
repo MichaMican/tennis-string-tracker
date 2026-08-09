@@ -50,3 +50,18 @@ public record HistoryEntryDto(
     string? OldValue,
     string? NewValue,
     DateTime Timestamp);
+
+public record RegisterStringerDto(string Username, string Password);
+
+public record StringerDto(Guid Id, string Username, DateTime CreatedAt);
+
+public record TrackerBookmarkDto(
+    Guid Id,
+    Guid TrackerId,
+    string? Name,
+    List<string> Tags,
+    DateTime CreatedAt);
+
+public record CreateBookmarkDto(Guid TrackerId, string? Name, List<string>? Tags);
+
+public record UpdateBookmarkDto(string? Name, List<string>? Tags);

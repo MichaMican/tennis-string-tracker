@@ -49,12 +49,41 @@ export interface StringEntryInput {
   dateOfStringing: string;
 }
 
+export interface Stringer {
+  id: string;
+  username: string;
+  createdAt: string;
+}
+
+export interface TrackerBookmark {
+  id: string;
+  trackerId: string;
+  name: string | null;
+  tags: string[];
+  createdAt: string;
+}
+
+export interface StringerCredentials {
+  username: string;
+  password: string;
+}
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 const EDIT_PASSWORD_HEADER = "X-Edit-Password";
 
 function editPasswordHeaders(editPassword?: string): Record<string, string> {
   return editPassword ? { [EDIT_PASSWORD_HEADER]: editPassword } : {};
+}
+
+const STRINGER_USERNAME_HEADER = "X-Stringer-Username";
+const STRINGER_PASSWORD_HEADER = "X-Stringer-Password";
+
+function stringerHeaders(creds: StringerCredentials): Record<string, string> {
+  return {
+    [STRINGER_USERNAME_HEADER]: creds.username,
+    [STRINGER_PASSWORD_HEADER]: creds.password,
+  };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -155,4 +184,51 @@ export const api = {
       `/trackers/${trackerId}/entries/${entryId}/comments/${commentId}`,
       { method: "DELETE", headers: editPasswordHeaders(editPassword) }
     ),
+
+  registerStringer: (username: string, password: string) =>
+    request<Stringer>("/stringers/register", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    }),
+
+  loginStringer: (creds: StringerCredentials) =>
+    request<Stringer>("/stringers/login", {
+      method: "POST",
+      headers: stringerHeaders(creds),
+    }),
+
+  getBookmarks: (creds: StringerCredentials) =>
+    request<TrackerBookmark[]>("/stringers/bookmarks", {
+      headers: stringerHeaders(creds),
+    }),
+
+  createBookmark: (
+    creds: StringerCredentials,
+    trackerId: string,
+    name?: string | null,
+    tags?: string[]
+  ) =>
+    request<TrackerBookmark>("/stringers/bookmarks", {
+      method: "POST",
+      headers: stringerHeaders(creds),
+      body: JSON.stringify({ trackerId, name: name ?? null, tags: tags ?? [] }),
+    }),
+
+  updateBookmark: (
+    creds: StringerCredentials,
+    bookmarkId: string,
+    name: string | null,
+    tags: string[]
+  ) =>
+    request<TrackerBookmark>(`/stringers/bookmarks/${bookmarkId}`, {
+      method: "PUT",
+      headers: stringerHeaders(creds),
+      body: JSON.stringify({ name, tags }),
+    }),
+
+  deleteBookmark: (creds: StringerCredentials, bookmarkId: string) =>
+    request<void>(`/stringers/bookmarks/${bookmarkId}`, {
+      method: "DELETE",
+      headers: stringerHeaders(creds),
+    }),
 };
