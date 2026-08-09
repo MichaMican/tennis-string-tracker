@@ -47,12 +47,19 @@ public static class Mapping
         h.NewValue,
         h.Timestamp);
 
-    public static TrackerBookmarkDto ToDto(this TrackerBookmark b) => new(
+    /// <summary>
+    /// Maps a bookmark to its DTO, optionally including a preview of the tracker's
+    /// most recent string entry (latest stringing date first).
+    /// </summary>
+    public static TrackerBookmarkDto ToDto(this TrackerBookmark b, StringEntry? latestEntry = null) => new(
         b.Id,
         b.TrackerId,
         b.Name,
         b.Tags,
-        b.CreatedAt);
+        b.CreatedAt,
+        latestEntry?.HorizontalWeight,
+        latestEntry?.VerticalWeight,
+        latestEntry?.DateOfStringing);
 
     public static string Label(StringEntry s)
         => $"String entry ({s.DateOfStringing:yyyy-MM-dd})";

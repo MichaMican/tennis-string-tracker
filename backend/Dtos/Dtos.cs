@@ -60,7 +60,10 @@ public record TrackerBookmarkDto(
     Guid TrackerId,
     string? Name,
     List<string> Tags,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    decimal? LatestHorizontalWeight,
+    decimal? LatestVerticalWeight,
+    DateTime? LatestDateOfStringing);
 
 public record CreateBookmarkDto(Guid TrackerId, string? Name, List<string>? Tags);
 

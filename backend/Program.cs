@@ -283,6 +283,14 @@ static List<string> NormalizeTags(List<string>? tags) =>
         .Take(MaxTags)
         .ToList();
 
+// Most recent string entry of a tracker (latest stringing date first).
+static Task<StringEntry?> LatestStringEntryAsync(AppDbContext db, Guid trackerId) =>
+    db.StringEntries
+        .Where(s => s.TrackerId == trackerId)
+        .OrderByDescending(s => s.DateOfStringing)
+        .ThenByDescending(s => s.CreatedAt)
+        .FirstOrDefaultAsync();
+
 api.MapPost("/stringers/register", async (RegisterStringerDto dto, AppDbContext db) =>
 {
     var username = dto.Username?.Trim().ToLowerInvariant() ?? "";
@@ -321,12 +329,23 @@ api.MapGet("/stringers/bookmarks", async (AppDbContext db, HttpRequest request) 
     var stringer = await StringerAuth.AuthenticateAsync(db, request);
     if (stringer is null) return Results.Unauthorized();
 
+    // Single query: each bookmark is projected together with the tracker's
+    // most recent string entry (no per-bookmark round trips).
     var bookmarks = await db.TrackerBookmarks
         .Where(b => b.StringerId == stringer.Id)
         .OrderByDescending(b => b.CreatedAt)
+        .Select(b => new
+        {
+            Bookmark = b,
+            LatestEntry = db.StringEntries
+                .Where(s => s.TrackerId == b.TrackerId)
+                .OrderByDescending(s => s.DateOfStringing)
+                .ThenByDescending(s => s.CreatedAt)
+                .FirstOrDefault()
+        })
         .ToListAsync();
 
-    return Results.Ok(bookmarks.Select(b => b.ToDto()).ToList());
+    return Results.Ok(bookmarks.Select(b => b.Bookmark.ToDto(b.LatestEntry)).ToList());
 });
 
 api.MapPost("/stringers/bookmarks", async (
@@ -361,7 +380,9 @@ api.MapPost("/stringers/bookmarks", async (
     db.TrackerBookmarks.Add(bookmark);
     await db.SaveChangesAsync();
 
-    return Results.Created($"/api/stringers/bookmarks/{bookmark.Id}", bookmark.ToDto());
+    var latestEntry = await LatestStringEntryAsync(db, bookmark.TrackerId);
+
+    return Results.Created($"/api/stringers/bookmarks/{bookmark.Id}", bookmark.ToDto(latestEntry));
 });
 
 api.MapPut("/stringers/bookmarks/{bookmarkId:guid}", async (
@@ -384,7 +405,9 @@ api.MapPut("/stringers/bookmarks/{bookmarkId:guid}", async (
     bookmark.Tags = tags;
     await db.SaveChangesAsync();
 
-    return Results.Ok(bookmark.ToDto());
+    var latestEntry = await LatestStringEntryAsync(db, bookmark.TrackerId);
+
+    return Results.Ok(bookmark.ToDto(latestEntry));
 });
 
 api.MapDelete("/stringers/bookmarks/{bookmarkId:guid}", async (
