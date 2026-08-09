@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import type { StringerCredentials, TrackerBookmark } from "../api";
 import { QrScanner } from "../components/QrScanner";
+import { QrDownloadButton } from "../components/QrDownloadButton";
 import {
   getStringerCredentials,
   setStringerCredentials,
@@ -123,6 +124,10 @@ function BookmarkCard({ bookmark, onSave, onDelete }: BookmarkCardProps) {
           )}
         </div>
         <div className="row" onClick={(e) => e.stopPropagation()}>
+          <QrDownloadButton
+            value={`${window.location.origin}/trackers/${bookmark.trackerId}`}
+            downloadName={`tracker-${bookmark.trackerId.slice(0, 8)}`}
+          />
           <button
             type="button"
             className="btn-sm"
