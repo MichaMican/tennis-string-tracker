@@ -47,6 +47,13 @@ public static class Mapping
         h.NewValue,
         h.Timestamp);
 
+    public static TrackerBookmarkDto ToDto(this TrackerBookmark b) => new(
+        b.Id,
+        b.TrackerId,
+        b.Name,
+        b.Tags,
+        b.CreatedAt);
+
     public static string Label(StringEntry s)
         => $"String entry ({s.DateOfStringing:yyyy-MM-dd})";
 
