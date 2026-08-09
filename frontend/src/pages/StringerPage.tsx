@@ -3,21 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import type { StringerCredentials, TrackerBookmark } from "../api";
 import { QrScanner } from "../components/QrScanner";
+import {
+  getStringerCredentials,
+  setStringerCredentials,
+} from "../stringerSession";
 import { useNoIndex } from "../useNoIndex";
 import { useI18n } from "../i18n/useI18n";
-
-const STORAGE_KEY = "stringer-credentials";
-
-function loadStoredCredentials(): StringerCredentials | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as StringerCredentials;
-    return parsed.username && parsed.password ? parsed : null;
-  } catch {
-    return null;
-  }
-}
 
 const GUID_PATTERN =
   /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
@@ -153,7 +144,7 @@ export function StringerPage() {
   const { t } = useI18n();
 
   const [credentials, setCredentials] = useState<StringerCredentials | null>(
-    loadStoredCredentials
+    getStringerCredentials
   );
   const [bookmarks, setBookmarks] = useState<TrackerBookmark[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -216,7 +207,7 @@ export function StringerPage() {
         await api.registerStringer(creds.username, creds.password);
       }
       await api.loginStringer(creds);
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(creds));
+      setStringerCredentials(creds);
       setCredentials(creds);
       setPassword("");
     } catch (err) {
@@ -231,7 +222,7 @@ export function StringerPage() {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem(STORAGE_KEY);
+    setStringerCredentials(null);
     setCredentials(null);
     setBookmarks(null);
   };
