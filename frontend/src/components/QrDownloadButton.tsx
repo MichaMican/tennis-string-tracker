@@ -33,7 +33,18 @@ export function QrDownloadButton({
       <button type="button" className="btn-sm" onClick={download}>
         {t("qr.download")}
       </button>
-      <div ref={ref} aria-hidden="true" style={{ display: "none" }}>
+      <div
+        ref={ref}
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: 0,
+          height: 0,
+          overflow: "hidden",
+          visibility: "hidden",
+          pointerEvents: "none",
+        }}
+      >
         <QRCodeCanvas value={value} size={size} marginSize={2} />
       </div>
     </>
