@@ -337,7 +337,8 @@ api.MapPost("/stringers/bookmarks", async (
 
     if (dto.Name is { Length: > MaxBookmarkNameLength })
         return Results.BadRequest($"Name must be at most {MaxBookmarkNameLength} characters.");
-    if (dto.Tags?.Any(t => t.Length > MaxTagLength) == true)
+    var tags = NormalizeTags(dto.Tags);
+    if (tags.Any(t => t.Length > MaxTagLength))
         return Results.BadRequest($"Tags must be at most {MaxTagLength} characters each.");
 
     var trackerExists = await db.Trackers.AnyAsync(t => t.Id == dto.TrackerId);
@@ -353,7 +354,7 @@ api.MapPost("/stringers/bookmarks", async (
         StringerId = stringer.Id,
         TrackerId = dto.TrackerId,
         Name = string.IsNullOrWhiteSpace(dto.Name) ? null : dto.Name.Trim(),
-        Tags = NormalizeTags(dto.Tags),
+        Tags = tags,
         CreatedAt = DateTime.UtcNow
     };
 
@@ -371,7 +372,8 @@ api.MapPut("/stringers/bookmarks/{bookmarkId:guid}", async (
 
     if (dto.Name is { Length: > MaxBookmarkNameLength })
         return Results.BadRequest($"Name must be at most {MaxBookmarkNameLength} characters.");
-    if (dto.Tags?.Any(t => t.Length > MaxTagLength) == true)
+    var tags = NormalizeTags(dto.Tags);
+    if (tags.Any(t => t.Length > MaxTagLength))
         return Results.BadRequest($"Tags must be at most {MaxTagLength} characters each.");
 
     var bookmark = await db.TrackerBookmarks
@@ -379,7 +381,7 @@ api.MapPut("/stringers/bookmarks/{bookmarkId:guid}", async (
     if (bookmark is null) return Results.NotFound();
 
     bookmark.Name = string.IsNullOrWhiteSpace(dto.Name) ? null : dto.Name.Trim();
-    bookmark.Tags = NormalizeTags(dto.Tags);
+    bookmark.Tags = tags;
     await db.SaveChangesAsync();
 
     return Results.Ok(bookmark.ToDto());
