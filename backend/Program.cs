@@ -268,6 +268,141 @@ api.MapDelete("/trackers/{id:guid}/entries/{entryId:guid}/comments/{commentId:gu
     return Results.NoContent();
 });
 
+// --- Stringers --------------------------------------------------------------
+
+const int MaxUsernameLength = 64;
+const int MaxBookmarkNameLength = 200;
+const int MaxTagLength = 50;
+const int MaxTags = 20;
+
+static List<string> NormalizeTags(List<string>? tags) =>
+    (tags ?? new List<string>())
+        .Select(t => t.Trim())
+        .Where(t => t.Length > 0)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .Take(MaxTags)
+        .ToList();
+
+api.MapPost("/stringers/register", async (RegisterStringerDto dto, AppDbContext db) =>
+{
+    var username = dto.Username?.Trim().ToLowerInvariant() ?? "";
+    if (username.Length is < 3 or > MaxUsernameLength)
+        return Results.BadRequest($"Username must be between 3 and {MaxUsernameLength} characters.");
+    if (string.IsNullOrEmpty(dto.Password) || dto.Password.Length < 6)
+        return Results.BadRequest("Password must be at least 6 characters.");
+
+    if (await db.Stringers.AnyAsync(s => s.Username == username))
+        return Results.Conflict("Username is already taken.");
+
+    var stringer = new Stringer
+    {
+        Id = Guid.NewGuid(),
+        Username = username,
+        PasswordHash = StringerAuth.Hash(dto.Password),
+        CreatedAt = DateTime.UtcNow
+    };
+    db.Stringers.Add(stringer);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/stringers/{stringer.Id}",
+        new StringerDto(stringer.Id, stringer.Username, stringer.CreatedAt));
+});
+
+api.MapPost("/stringers/login", async (AppDbContext db, HttpRequest request) =>
+{
+    var stringer = await StringerAuth.AuthenticateAsync(db, request);
+    return stringer is null
+        ? Results.Unauthorized()
+        : Results.Ok(new StringerDto(stringer.Id, stringer.Username, stringer.CreatedAt));
+});
+
+api.MapGet("/stringers/bookmarks", async (AppDbContext db, HttpRequest request) =>
+{
+    var stringer = await StringerAuth.AuthenticateAsync(db, request);
+    if (stringer is null) return Results.Unauthorized();
+
+    var bookmarks = await db.TrackerBookmarks
+        .Where(b => b.StringerId == stringer.Id)
+        .OrderByDescending(b => b.CreatedAt)
+        .ToListAsync();
+
+    return Results.Ok(bookmarks.Select(b => b.ToDto()).ToList());
+});
+
+api.MapPost("/stringers/bookmarks", async (
+    CreateBookmarkDto dto, AppDbContext db, HttpRequest request) =>
+{
+    var stringer = await StringerAuth.AuthenticateAsync(db, request);
+    if (stringer is null) return Results.Unauthorized();
+
+    if (dto.Name is { Length: > MaxBookmarkNameLength })
+        return Results.BadRequest($"Name must be at most {MaxBookmarkNameLength} characters.");
+    var tags = NormalizeTags(dto.Tags);
+    if (tags.Any(t => t.Length > MaxTagLength))
+        return Results.BadRequest($"Tags must be at most {MaxTagLength} characters each.");
+
+    var trackerExists = await db.Trackers.AnyAsync(t => t.Id == dto.TrackerId);
+    if (!trackerExists) return Results.NotFound("Tracker not found.");
+
+    var alreadyBookmarked = await db.TrackerBookmarks
+        .AnyAsync(b => b.StringerId == stringer.Id && b.TrackerId == dto.TrackerId);
+    if (alreadyBookmarked) return Results.Conflict("Tracker is already bookmarked.");
+
+    var bookmark = new TrackerBookmark
+    {
+        Id = Guid.NewGuid(),
+        StringerId = stringer.Id,
+        TrackerId = dto.TrackerId,
+        Name = string.IsNullOrWhiteSpace(dto.Name) ? null : dto.Name.Trim(),
+        Tags = tags,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    db.TrackerBookmarks.Add(bookmark);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/stringers/bookmarks/{bookmark.Id}", bookmark.ToDto());
+});
+
+api.MapPut("/stringers/bookmarks/{bookmarkId:guid}", async (
+    Guid bookmarkId, UpdateBookmarkDto dto, AppDbContext db, HttpRequest request) =>
+{
+    var stringer = await StringerAuth.AuthenticateAsync(db, request);
+    if (stringer is null) return Results.Unauthorized();
+
+    if (dto.Name is { Length: > MaxBookmarkNameLength })
+        return Results.BadRequest($"Name must be at most {MaxBookmarkNameLength} characters.");
+    var tags = NormalizeTags(dto.Tags);
+    if (tags.Any(t => t.Length > MaxTagLength))
+        return Results.BadRequest($"Tags must be at most {MaxTagLength} characters each.");
+
+    var bookmark = await db.TrackerBookmarks
+        .FirstOrDefaultAsync(b => b.Id == bookmarkId && b.StringerId == stringer.Id);
+    if (bookmark is null) return Results.NotFound();
+
+    bookmark.Name = string.IsNullOrWhiteSpace(dto.Name) ? null : dto.Name.Trim();
+    bookmark.Tags = tags;
+    await db.SaveChangesAsync();
+
+    return Results.Ok(bookmark.ToDto());
+});
+
+api.MapDelete("/stringers/bookmarks/{bookmarkId:guid}", async (
+    Guid bookmarkId, AppDbContext db, HttpRequest request) =>
+{
+    var stringer = await StringerAuth.AuthenticateAsync(db, request);
+    if (stringer is null) return Results.Unauthorized();
+
+    var bookmark = await db.TrackerBookmarks
+        .FirstOrDefaultAsync(b => b.Id == bookmarkId && b.StringerId == stringer.Id);
+    if (bookmark is null) return Results.NotFound();
+
+    db.TrackerBookmarks.Remove(bookmark);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
 app.MapFallbackToFile("index.html");
 
 app.Run();
