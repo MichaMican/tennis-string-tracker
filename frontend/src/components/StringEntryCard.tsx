@@ -107,9 +107,10 @@ export function StringEntryCard({
   onDeleteComment,
 }: Props) {
   const { t } = useI18n();
-  const { formatDate, formatDateTime, formatKnotting, formatWeight } =
+  const { formatAge, formatDate, formatDateTime, formatKnotting, formatWeight } =
     useFormatters();
   const [editing, setEditing] = useState(false);
+  const age = formatAge(entry.dateOfStringing);
 
   const playerComments = entry.comments.filter((c) => c.author !== "Stringer");
   const stringerComments = entry.comments.filter((c) => c.author === "Stringer");
@@ -152,7 +153,10 @@ export function StringEntryCard({
   return (
     <div className="card stack">
       <div className="row">
-        <h3 style={{ margin: 0 }}>{formatDate(entry.dateOfStringing)}</h3>
+        <h3 style={{ margin: 0 }}>
+          {formatDate(entry.dateOfStringing)}
+          {age && <span className="muted"> ({age})</span>}
+        </h3>
         <div className="spacer" />
         {editMode && (
           <div className="row">
