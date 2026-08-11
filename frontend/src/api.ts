@@ -140,6 +140,18 @@ export const api = {
       body: JSON.stringify({ password }),
     }),
 
+  /** Sets a new edit password, or removes it when `newPassword` is null. */
+  updateEditPassword: (
+    trackerId: string,
+    newPassword: string | null,
+    editPassword?: string
+  ) =>
+    request<void>(`/trackers/${trackerId}/edit-password`, {
+      method: "PUT",
+      headers: editPasswordHeaders(editPassword),
+      body: JSON.stringify({ newPassword: newPassword?.trim() ? newPassword : null }),
+    }),
+
   createEntry: (trackerId: string, input: StringEntryInput, editPassword?: string) =>
     request<StringEntry>(`/trackers/${trackerId}/entries`, {
       method: "POST",
