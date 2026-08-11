@@ -24,6 +24,9 @@ public record CreateTrackerDto(string? EditPassword);
 
 public record VerifyEditPasswordDto(string Password);
 
+/// <summary>Sets a new edit password, or removes it when <c>NewPassword</c> is null/empty.</summary>
+public record UpdateEditPasswordDto(string? NewPassword);
+
 public record CreateStringEntryDto(
     decimal? HorizontalWeight,
     decimal? VerticalWeight,

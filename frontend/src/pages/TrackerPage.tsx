@@ -24,6 +24,11 @@ export function TrackerPage() {
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changeError, setChangeError] = useState<string | null>(null);
+  const [savingPassword, setSavingPassword] = useState(false);
 
   const load = useCallback(async (password?: string) => {
     try {
@@ -96,6 +101,7 @@ export function TrackerPage() {
     if (editMode) {
       setEditMode(false);
       setAdding(false);
+      setChangingPassword(false);
       return;
     }
     if (tracker?.hasEditPassword && editPassword === undefined) {
@@ -123,6 +129,51 @@ export function TrackerPage() {
     } finally {
       setVerifying(false);
     }
+  };
+
+  const openPasswordChange = () => {
+    setChangingPassword(true);
+    setNewPassword("");
+    setConfirmPassword("");
+    setChangeError(null);
+  };
+
+  const applyPasswordChange = async (password: string | null) => {
+    setSavingPassword(true);
+    setChangeError(null);
+    try {
+      await api.updateEditPassword(id, password, editPassword);
+      const next = password ?? undefined;
+      setEditPassword(next);
+      setChangingPassword(false);
+      setNewPassword("");
+      setConfirmPassword("");
+      await load(next);
+    } catch (err) {
+      setChangeError(
+        err instanceof Error ? err.message : t("tracker.passwordChangeFailed")
+      );
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
+  const handlePasswordChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword.trim()) {
+      setChangeError(t("tracker.passwordEmpty"));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setChangeError(t("tracker.passwordMismatch"));
+      return;
+    }
+    await applyPasswordChange(newPassword);
+  };
+
+  const handleRemovePassword = async () => {
+    if (!window.confirm(t("tracker.confirmRemovePassword"))) return;
+    await applyPasswordChange(null);
   };
 
   if (loading) {
@@ -214,6 +265,67 @@ export function TrackerPage() {
           ) : (
             <button className="btn-primary" onClick={() => setAdding(true)}>
               {t("tracker.createEntry")}
+            </button>
+          )}
+
+          {changingPassword ? (
+            <form className="card stack" onSubmit={handlePasswordChangeSubmit}>
+              <h3>
+                {tracker.hasEditPassword
+                  ? t("tracker.changePasswordTitle")
+                  : t("tracker.setPasswordTitle")}
+              </h3>
+              <p className="muted">{t("tracker.changePasswordIntro")}</p>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder={t("tracker.newPasswordPlaceholder")}
+                autoComplete="new-password"
+              />
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder={t("tracker.confirmPasswordPlaceholder")}
+                autoComplete="new-password"
+              />
+              {changeError && <p className="error">{changeError}</p>}
+              <div className="row">
+                <button
+                  type="submit"
+                  className="btn-sm btn-primary"
+                  disabled={savingPassword}
+                >
+                  {savingPassword
+                    ? t("tracker.savingPassword")
+                    : t("tracker.savePassword")}
+                </button>
+                {tracker.hasEditPassword && (
+                  <button
+                    type="button"
+                    className="btn-sm"
+                    onClick={handleRemovePassword}
+                    disabled={savingPassword}
+                  >
+                    {t("tracker.removePassword")}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="btn-sm"
+                  onClick={() => setChangingPassword(false)}
+                  disabled={savingPassword}
+                >
+                  {t("common.cancel")}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button className="btn" onClick={openPasswordChange}>
+              {tracker.hasEditPassword
+                ? t("tracker.changePassword")
+                : t("tracker.setPassword")}
             </button>
           )}
         </div>

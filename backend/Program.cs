@@ -120,6 +120,22 @@ api.MapPost("/trackers/{id:guid}/verify-edit-password", async (
         : Results.Unauthorized();
 });
 
+api.MapPut("/trackers/{id:guid}/edit-password", async (
+    Guid id, UpdateEditPasswordDto dto, AppDbContext db, HttpRequest request) =>
+{
+    var tracker = await db.Trackers.FindAsync(id);
+    if (tracker is null) return Results.NotFound();
+    // Changing or removing the password requires the current one.
+    if (!EditPassword.IsAuthorized(tracker, request)) return Results.Unauthorized();
+
+    tracker.EditPasswordHash = string.IsNullOrWhiteSpace(dto.NewPassword)
+        ? null
+        : EditPassword.Hash(dto.NewPassword);
+
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
 // --- String entries -------------------------------------------------------
 
 api.MapPost("/trackers/{id:guid}/entries", async (
