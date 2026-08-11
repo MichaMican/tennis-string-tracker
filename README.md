@@ -24,7 +24,8 @@ share a tracker via a link or QR code that can be placed on the racket.
   - An **Edit** button reveals controls to create a new string entry, edit or
     delete existing entries, delete comments and add **stringer comments** –
     internal notes with timestamps that are only shown in the edit view and are
-    never returned to players.
+    never returned to players. The edit view also allows changing the tracker's
+    edit password or removing it entirely.
   - Marked `noindex, nofollow` and disallowed in `robots.txt` so it is not crawled.
 - **History page (`/trackers/{guid}/history`)** – lists every change (create,
   update, delete) including previous and new values, e.g.
