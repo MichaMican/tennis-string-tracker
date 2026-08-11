@@ -141,6 +141,9 @@ const en = {
 
   "weight.kg": "{value} kg",
 
+  "age.daysAgo": "{days}d ago",
+  "age.yearsDaysAgo": "{years}y {days}d ago",
+
   "copy.copy": "Copy link",
   "copy.copied": "Copied!",
 
@@ -295,6 +298,9 @@ const de: Record<TranslationKey, string> = {
 
   "weight.kg": "{value} kg",
 
+  "age.daysAgo": "vor {days}T",
+  "age.yearsDaysAgo": "vor {years}J {days}T",
+
   "copy.copy": "Link kopieren",
   "copy.copied": "Kopiert!",
 
@@ -446,6 +452,9 @@ const cs: Record<TranslationKey, string> = {
   "knotting.4": "4 uzly",
 
   "weight.kg": "{value} kg",
+
+  "age.daysAgo": "před {days}d",
+  "age.yearsDaysAgo": "před {years}r {days}d",
 
   "copy.copy": "Kopírovat odkaz",
   "copy.copied": "Zkopírováno!",
