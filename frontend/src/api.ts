@@ -61,6 +61,10 @@ export interface TrackerBookmark {
   name: string | null;
   tags: string[];
   createdAt: string;
+  /** Weights of the tracker's most recent string entry, if any. */
+  latestHorizontalWeight: number | null;
+  latestVerticalWeight: number | null;
+  latestDateOfStringing: string | null;
 }
 
 export interface StringerCredentials {

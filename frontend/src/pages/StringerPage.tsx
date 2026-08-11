@@ -9,6 +9,7 @@ import {
   setStringerCredentials,
 } from "../stringerSession";
 import { useNoIndex } from "../useNoIndex";
+import { useFormatters } from "../useFormatters";
 import { useI18n } from "../i18n/useI18n";
 
 const GUID_PATTERN =
@@ -35,6 +36,7 @@ interface BookmarkCardProps {
 
 function BookmarkCard({ bookmark, onSave, onDelete }: BookmarkCardProps) {
   const { t } = useI18n();
+  const { formatWeight, formatDate } = useFormatters();
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(bookmark.name ?? "");
@@ -122,6 +124,15 @@ function BookmarkCard({ bookmark, onSave, onDelete }: BookmarkCardProps) {
               {bookmark.tags.map((tag) => `#${tag}`).join(" ")}
             </span>
           )}
+          <span className="muted" style={{ fontSize: "0.85rem" }}>
+            {bookmark.latestDateOfStringing
+              ? t("stringer.latestStringing", {
+                  vertical: formatWeight(bookmark.latestVerticalWeight),
+                  horizontal: formatWeight(bookmark.latestHorizontalWeight),
+                  date: formatDate(bookmark.latestDateOfStringing),
+                })
+              : t("stringer.noStringingYet")}
+          </span>
         </div>
         <div className="row" onClick={(e) => e.stopPropagation()}>
           <QrDownloadButton
