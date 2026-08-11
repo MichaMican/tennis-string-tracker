@@ -293,6 +293,25 @@ export function StringerPage() {
     await loadBookmarks(credentials);
   };
 
+  const handleExportAll = () => {
+    if (!bookmarks || bookmarks.length === 0) return;
+    const data = bookmarks.map((bookmark) => ({
+      trackerId: bookmark.trackerId,
+      name: bookmark.name,
+      latestVerticalWeight: bookmark.latestVerticalWeight,
+      latestHorizontalWeight: bookmark.latestHorizontalWeight,
+    }));
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "bookmarked-trackers.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleDeleteBookmark = async (bookmarkId: string) => {
     if (!credentials) return;
     if (!window.confirm(t("stringer.confirmRemoveBookmark"))) return;
@@ -438,6 +457,15 @@ export function StringerPage() {
         <p className="muted">{t("stringer.noBookmarks")}</p>
       ) : (
         <div className="stack">
+          <div className="row">
+            <button
+              type="button"
+              className="btn-sm"
+              onClick={handleExportAll}
+            >
+              {t("stringer.exportAll")}
+            </button>
+          </div>
           {bookmarks.map((bookmark) => (
             <BookmarkCard
               key={bookmark.id}

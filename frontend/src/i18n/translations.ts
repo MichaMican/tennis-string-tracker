@@ -72,6 +72,7 @@ const en = {
   "stringer.latestStringing":
     "Last stringing: {vertical} vertical / {horizontal} horizontal ({date})",
   "stringer.noStringingYet": "No stringing recorded yet",
+  "stringer.exportAll": "Export all",
 
   "newTracker.title": "Create a new tracker",
   "newTracker.intro":
@@ -245,6 +246,7 @@ const de: Record<TranslationKey, string> = {
   "stringer.latestStringing":
     "Letzte Bespannung: {vertical} längs / {horizontal} quer ({date})",
   "stringer.noStringingYet": "Noch keine Bespannung erfasst",
+  "stringer.exportAll": "Alle exportieren",
 
   "newTracker.title": "Neuen Tracker erstellen",
   "newTracker.intro":
@@ -417,6 +419,7 @@ const cs: Record<TranslationKey, string> = {
   "stringer.latestStringing":
     "Poslední výplet: {vertical} podélné / {horizontal} příčné ({date})",
   "stringer.noStringingYet": "Zatím nezaznamenán žádný výplet",
+  "stringer.exportAll": "Exportovat vše",
 
   "newTracker.title": "Vytvořit nové sledování",
   "newTracker.intro":
