@@ -69,6 +69,9 @@ const en = {
   "stringer.removeBookmark": "Remove",
   "stringer.confirmRemoveBookmark": "Remove this bookmark?",
   "stringer.save": "Save",
+  "stringer.latestStringing":
+    "Last stringing: {vertical} vertical / {horizontal} horizontal ({date})",
+  "stringer.noStringingYet": "No stringing recorded yet",
 
   "newTracker.title": "Create a new tracker",
   "newTracker.intro":
@@ -223,6 +226,9 @@ const de: Record<TranslationKey, string> = {
   "stringer.removeBookmark": "Entfernen",
   "stringer.confirmRemoveBookmark": "Dieses Lesezeichen entfernen?",
   "stringer.save": "Speichern",
+  "stringer.latestStringing":
+    "Letzte Bespannung: {vertical} längs / {horizontal} quer ({date})",
+  "stringer.noStringingYet": "Noch keine Bespannung erfasst",
 
   "newTracker.title": "Neuen Tracker erstellen",
   "newTracker.intro":
@@ -375,6 +381,9 @@ const cs: Record<TranslationKey, string> = {
   "stringer.removeBookmark": "Odebrat",
   "stringer.confirmRemoveBookmark": "Odebrat tuto záložku?",
   "stringer.save": "Uložit",
+  "stringer.latestStringing":
+    "Poslední výplet: {vertical} podélné / {horizontal} příčné ({date})",
+  "stringer.noStringingYet": "Zatím nezaznamenán žádný výplet",
 
   "newTracker.title": "Vytvořit nové sledování",
   "newTracker.intro":
